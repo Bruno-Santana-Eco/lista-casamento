@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Lista de presentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<!-- Ilustrações originais em traço fino (reutilizadas com <use>) -->
+<svg class="ilu-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="ilu-f">
+      <path d="M0 0C-15-20-16-52 0-76 16-52 15-20 0 0Z"/>
+      <path d="M0 0V-62M0-22l-8-9M0-22l8-9M0-40l-7-8M0-40l7-8"/>
+    </g>
+  </defs>
+
+  <symbol id="ilu-folha" viewBox="-20 -80 40 84">
+    <use href="#ilu-f"/>
+  </symbol>
+
+  <symbol id="ilu-ramo" viewBox="0 -20 160 320">
+    <path d="M80 296C66 236 98 176 84 116C74 72 90 40 82 8"/>
+    <use href="#ilu-f" transform="translate(77 251) rotate(-60) scale(.55)"/>
+    <use href="#ilu-f" transform="translate(82 206) rotate(55) scale(.6)"/>
+    <use href="#ilu-f" transform="translate(87 161) rotate(-55) scale(.6)"/>
+    <use href="#ilu-f" transform="translate(84 116) rotate(50) scale(.5)"/>
+    <use href="#ilu-f" transform="translate(81 85) rotate(-50) scale(.45)"/>
+    <use href="#ilu-f" transform="translate(82 57) rotate(45) scale(.4)"/>
+    <use href="#ilu-f" transform="translate(82 10) scale(.35)"/>
+    <circle cx="62" cy="230" r="2.2"/><circle cx="104" cy="188" r="2.2"/><circle cx="68" cy="142" r="2.2"/>
+  </symbol>
+
+  <symbol id="ilu-flor" viewBox="-46 -46 92 92">
+    <g id="ilu-petala"><path d="M0-6C-12-16-12-34 0-42 12-34 12-16 0-6Z"/><path d="M0-10V-32"/></g>
+    <use href="#ilu-petala" transform="rotate(72)"/>
+    <use href="#ilu-petala" transform="rotate(144)"/>
+    <use href="#ilu-petala" transform="rotate(216)"/>
+    <use href="#ilu-petala" transform="rotate(288)"/>
+    <circle r="3.2"/>
+  </symbol>
+</svg>
+
+<div class="aviso-config" id="aviso-config" hidden>
+  Modo de exemplo: configure a apiUrl e a chave Pix em js/config.js antes de compartilhar o link.
+</div>
+
+<header class="menu-barra" id="menu-barra">
+  <div class="menu-in">
+    <a class="marca" href="#inicio" aria-label="Início"><span id="marca"></span></a>
+    <button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">
+      <span class="menu-btn-icone" aria-hidden="true"></span><span>Menu</span>
+    </button>
+    <nav id="menu" aria-label="Seções do site">
+      <ul>
+        <li><a href="#inicio">Home</a></li>
+        <li><a href="#casal">O Casal</a></li>
+        <li id="menu-recepcao" hidden><a href="#recepcao">Recepção</a></li>
+        <li><a href="#presentes">Lista de presentes</a></li>
+        <li><a href="#contribuicao-livre">Contribuição livre</a></li>
+        <li><a href="#presenca">Confirme presença</a></li>
+        <li><a href="#recados">Recados</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero" id="inicio" aria-labelledby="titulo-casal">
+  <svg class="ilu ornamento canto-a" viewBox="0 -20 160 320" aria-hidden="true"><use href="#ilu-ramo"/></svg>
+  <svg class="ilu ornamento canto-b" viewBox="0 -20 160 320" aria-hidden="true"><use href="#ilu-ramo"/></svg>
+  <svg class="ilu ornamento flor-a" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>
+  <svg class="ilu ornamento flor-b" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>
+
+  <div class="hero-in">
+    <div class="hero-foto">
+      <svg class="mancha" viewBox="46 40 324 330" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <filter id="pincel" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="4" result="r"/>
+            <feDisplacementMap in="SourceGraphic" in2="r" scale="16"/>
+          </filter>
+        </defs>
+        <path filter="url(#pincel)"d="M62 196C50 112 126 36 212 44C304 52 366 112 352 204C342 288 288 358 202 362C116 366 72 294 62 196Z"/>
+      </svg>
+      <img class="foto-redonda" id="foto-hero" src="img/casal-hero.jpg" width="1000" height="1000" alt="Lídia e Bruno sorrindo lado a lado em uma varanda, com as luzes da cidade ao fundo" fetchpriority="high">
+      <svg class="ilu ramo-foto ramo-foto-a" viewBox="0 -20 160 320" aria-hidden="true"><use href="#ilu-ramo"/></svg>
+      <svg class="ilu ramo-foto ramo-foto-b" viewBox="0 -20 160 320" aria-hidden="true"><use href="#ilu-ramo"/></svg>
+    </div>
+
+    <div class="hero-texto">
+      <h1 id="titulo-casal">
+        <span class="nome" id="nome1"></span>
+        <span class="e-comercial" aria-hidden="true">&amp;</span>
+        <span class="nome" id="nome2"></span>
+      </h1>
+      <svg class="ilu folha-sep" viewBox="-20 -80 40 84" aria-hidden="true"><use href="#ilu-folha"/></svg>
+      <p class="data-hero" id="data-hero"></p>
+      <p class="festa" id="festa"></p>
+    </div>
+  </div>
+</section>
+
+<section class="contagem" aria-labelledby="contagem-titulo">
+  <p class="contagem-titulo" id="contagem-titulo"></p>
+  <div class="contagem-grid" id="contagem-grid" role="timer">
+    <div class="cont-item"><span class="cont-num" id="c-dias">0</span><span class="cont-rot">dias</span></div>
+    <div class="cont-item"><span class="cont-num" id="c-horas">00</span><span class="cont-rot">horas</span></div>
+    <div class="cont-item"><span class="cont-num" id="c-min">00</span><span class="cont-rot">minutos</span></div>
+    <div class="cont-item"><span class="cont-num" id="c-seg">00</span><span class="cont-rot">segundos</span></div>
+  </div>
+  <p class="contagem-fim" id="contagem-fim" hidden></p>
+</section>
+
+<section class="secao" id="casal" aria-labelledby="casal-titulo">
+  <div class="secao-in">
+    <h2 class="titulo" id="casal-titulo">O Casal</h2>
+    <div class="casal-fotos">
+      <figure class="blob-fig blob-a">
+        <img class="foto-blob" src="img/lidia.jpg" width="800" height="800" alt="Retrato de Lídia" loading="lazy">
+        <figcaption id="legenda1"></figcaption>
+      </figure>
+      <figure class="blob-fig blob-b">
+        <img class="foto-blob" src="img/bruno.jpg" width="800" height="800" alt="Retrato de Bruno" loading="lazy">
+        <figcaption id="legenda2"></figcaption>
+      </figure>
+    </div>
+    <p class="casal-texto" id="casal-texto"></p>
+  </div>
+</section>
+
+<section class="secao alt" id="recepcao" aria-labelledby="recepcao-titulo" hidden>
+  <div class="secao-in">
+    <h2 class="titulo" id="recepcao-titulo">Recepção</h2>
+    <div class="recepcao-info">
+      <p class="recepcao-linha" id="rec-data"></p>
+      <p class="recepcao-linha" id="rec-horario"></p>
+      <p class="recepcao-linha" id="rec-local"></p>
+      <p class="recepcao-endereco" id="rec-endereco"></p>
+      <div class="acoes">
+        <a class="btn" id="rec-maps" target="_blank" rel="noopener noreferrer">Abrir no Maps</a>
+        <a class="btn sec" id="rec-waze" target="_blank" rel="noopener noreferrer">Abrir no Waze</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="secao" id="presentes" aria-labelledby="presentes-titulo">
+  <div class="secao-in">
+    <h2 class="titulo" id="presentes-titulo">Lista de presentes</h2>
+    <p class="intro" id="intro"></p>
+    <div class="barra-lista">
+      <div class="filtros" role="group" aria-label="Filtrar presentes">
+        <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
+        <button type="button" data-filtro="vaquinhas" aria-pressed="false">Vaquinhas</button>
+        <button type="button" data-filtro="presentes" aria-pressed="false">Presentes</button>
+        <button type="button" data-filtro="disponiveis" aria-pressed="false">Ainda disponíveis</button>
+      </div>
+      <label class="ordenar">Ordenar por
+        <select id="ordem">
+          <option value="padrao">Ordem da lista</option>
+          <option value="az">A–Z</option>
+          <option value="menor">Menor valor</option>
+          <option value="maior">Maior valor</option>
+        </select>
+      </label>
+    </div>
+    <div class="mural" id="mural"></div>
+  </div>
+</section>
+
+<section class="secao alt" id="contribuicao-livre" aria-labelledby="livre-titulo">
+  <div class="secao-in estreita">
+    <h2 class="titulo" id="livre-titulo">Contribuição livre</h2>
+    <p class="intro">Prefere fazer um Pix direto, sem escolher um presente? Use o QR Code com o valor que quiser. Ele vai para o nosso começo de vida a dois.</p>
+    <div class="form">
+      <label class="campo">Valor (opcional)
+        <span class="campo-valor">R$ <input type="number" id="pix-livre-valor" min="1" step="0.01" inputmode="decimal" placeholder="0,00"></span>
+      </label>
+      <p class="nota">Se deixar em branco, você digita o valor no app do banco. Esta contribuição vai direto para nós e não aparece nas barras dos presentes.</p>
+      <p class="erro" id="pix-livre-erro" hidden></p>
+      <button class="btn" type="button" id="pix-livre-gerar">Gerar QR Code do Pix</button>
+      <div class="pix-livre-resultado" id="pix-livre-resultado" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="secao" id="presenca" aria-labelledby="presenca-titulo">
+  <div class="secao-in estreita">
+    <h2 class="titulo" id="presenca-titulo">Confirme presença</h2>
+    <p class="intro">Conte para a gente se você vem e com quantas pessoas. Assim a festa fica do tamanho certo.</p>
+    <p class="alerta" id="presenca-encerrada" hidden>As confirmações foram encerradas. Se precisar, fale com os noivos.</p>
+    <form class="form" id="form-presenca" novalidate>
+      <label class="campo">Nome e sobrenome<input name="nome" autocomplete="name" maxlength="80" required></label>
+      <label class="campo">Celular com DDD<input type="tel" name="telefone" autocomplete="tel" inputmode="tel" placeholder="(71) 99999-9999" required></label>
+      <p class="nota">Se precisar mudar a resposta depois, é só enviar de novo com o mesmo celular.</p>
+      <fieldset class="campo-grupo">
+        <legend>Você vai comparecer?</legend>
+        <label class="radio"><input type="radio" name="comparece" value="sim" checked> Sim, vou</label>
+        <label class="radio"><input type="radio" name="comparece" value="nao"> Não poderei ir</label>
+      </fieldset>
+      <div class="campo-duplo" id="presenca-pessoas">
+        <label class="campo">Adultos (contando você)<input type="number" name="adultos" min="1" value="1" inputmode="numeric"></label>
+        <label class="campo">Crianças<input type="number" name="criancas" min="0" value="0" inputmode="numeric"></label>
+      </div>
+      <label class="campo">Mensagem (opcional)<textarea name="mensagem" rows="3" maxlength="500"></textarea></label>
+      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="nota">Usamos estes dados só para organizar a festa. Apenas os noivos têm acesso.</p>
+      <p class="aviso-form" id="aviso-presenca" role="status" hidden></p>
+      <button class="btn" type="submit">Enviar resposta</button>
+    </form>
+  </div>
+</section>
+
+<section class="secao alt" id="recados" aria-labelledby="recados-titulo">
+  <div class="secao-in estreita">
+    <h2 class="titulo" id="recados-titulo">Recados</h2>
+    <p class="intro">Deixe uma mensagem para os noivos. Ela aparece aqui depois que a gente aprovar.</p>
+    <form class="form" id="form-recado" novalidate>
+      <label class="campo">Seu nome<input name="nome" autocomplete="name" maxlength="80" required></label>
+      <label class="campo">Mensagem<textarea name="mensagem" rows="4" maxlength="500" required></textarea></label>
+      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="nota">Seu nome e sua mensagem ficam visíveis para todos depois de aprovados.</p>
+      <p class="aviso-form" id="aviso-recado" role="status" hidden></p>
+      <button class="btn" type="submit">Enviar recado</button>
+    </form>
+  </div>
+  <div class="secao-in">
+    <div class="mural-recados" id="mural-recados" role="region" aria-label="Recados dos convidados" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="rodape-site">
+  <svg class="ilu rodape-flor" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>
+  <p>Pagamentos via Pix e InfinitePay. Este site não recebe nem guarda dados de cartão.</p>
+</footer>
+
+<button class="carrinho-flutuante" id="carrinho-btn" type="button" hidden>
+  <span class="carrinho-rotulo">Ver carrinho</span>
+  <span id="carrinho-resumo"></span>
+</button>
+
+<dialog id="dlg" aria-labelledby="dlg-titulo">
+  <div class="faixa-mini" aria-hidden="true"></div>
+  <button class="fechar" type="button" id="fechar" aria-label="Fechar">×</button>
+  <div id="corpo"></div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="js/config.js"></script>
+<script src="js/pix.js"></script>
+<script src="js/carrinho.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

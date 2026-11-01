@@ -1,0 +1,690 @@
+/* ---------- Utilidades ---------- */
+const brl = new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' });
+const fmt = v => brl.format(v);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isVaq = it => it.tipo === 'vaquinha';
+/* Presente com várias unidades (ex.: jogo de cama): quantidade e dadas */
+const unidadesTotal = it => (!isVaq(it) && it.quantidade > 1) ? it.quantidade : 1;
+const unidadesRestantes = it => Math.max(0, unidadesTotal(it) - (it.dadas || 0));
+const jaDado = it => isVaq(it) ? it.arrecadado >= it.meta
+  : (unidadesTotal(it) > 1 ? unidadesRestantes(it) === 0 : !!it.comprado);
+const valorTotalItem = it => isVaq(it) ? it.meta : it.valor;   // usado na ordenação por valor
+const valorLink = it => isVaq(it) ? it.cota : it.valor;   // valor de uma cota ou de uma unidade
+const modoExemplo = !CONFIG.apiUrl || CONFIG.pix.chave.includes('COLOQUE');
+
+/* ---------- Página ---------- */
+const porId = id => document.getElementById(id);
+const nomes = `${CONFIG.casal.nome1} & ${CONFIG.casal.nome2}`;
+const [aaaaC, mmC, ddC] = CONFIG.datas.casamento.split('-');
+
+document.title = `Lista de presentes de ${nomes}`;
+porId('nome1').textContent = CONFIG.casal.nome1;
+porId('nome2').textContent = CONFIG.casal.nome2;
+porId('marca').textContent = `${CONFIG.casal.nome1[0]} & ${CONFIG.casal.nome2[0]}`;
+porId('data-hero').innerHTML = `${ddC}<span aria-hidden="true">|</span>${mmC}<span aria-hidden="true">|</span>${aaaaC}`;
+porId('data-hero').setAttribute('aria-label', `${Number(ddC)}/${Number(mmC)}/${aaaaC}`);
+porId('festa').textContent = CONFIG.festa || '';
+porId('festa').hidden = !CONFIG.festa;
+porId('intro').textContent = CONFIG.intro;
+porId('aviso-config').hidden = !modoExemplo;
+
+/* ---------- Casal ---------- */
+porId('legenda1').textContent = CONFIG.casal.nome1;
+porId('legenda2').textContent = CONFIG.casal.nome2;
+porId('casal-texto').textContent = CONFIG.casal.texto;
+
+/* Forma neutra com ilustração no lugar de qualquer foto que faltar */
+function fotoAusente(img){
+  const neutro = document.createElement('div');
+  neutro.className = `${img.className.replace('foto-blob', '').trim()} neutro`;
+  neutro.setAttribute('role', 'img');
+  neutro.setAttribute('aria-label', img.alt);
+  neutro.innerHTML = '<svg class="ilu" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>';
+  img.replaceWith(neutro);
+}
+document.querySelectorAll('img.foto-blob, img.foto-redonda').forEach(img => {
+  if (img.complete && img.naturalWidth === 0) fotoAusente(img);
+  else img.addEventListener('error', () => fotoAusente(img), { once:true });
+});
+
+/* ---------- Recepção (só aparece com endereço) ---------- */
+const rec = CONFIG.recepcao;
+if (rec && rec.endereco){
+  const q = encodeURIComponent(rec.endereco);
+  porId('rec-data').textContent = rec.data || '';
+  porId('rec-horario').textContent = rec.horario ? `às ${rec.horario}` : '';
+  porId('rec-local').textContent = rec.local || '';
+  porId('rec-endereco').textContent = rec.endereco;
+  porId('rec-maps').href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  porId('rec-waze').href = `https://waze.com/ul?q=${q}&navigate=yes`;
+  porId('recepcao').hidden = false;
+  porId('menu-recepcao').hidden = false;
+}
+
+/* ---------- Menu (no celular vira um botão) ---------- */
+const menuBtn = porId('menu-btn'), menuNav = porId('menu');
+function menu(aberto){
+  menuNav.classList.toggle('aberto', aberto);
+  menuBtn.setAttribute('aria-expanded', String(aberto));
+}
+menuBtn.addEventListener('click', () => menu(menuBtn.getAttribute('aria-expanded') !== 'true'));
+menuNav.addEventListener('click', e => { if (e.target.closest('a')) menu(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuNav.classList.contains('aberto')){ menu(false); menuBtn.focus(); } });
+
+/* ---------- Contagem regressiva ---------- */
+const contagemFesta = CONFIG.contagemPara !== 'casamento';
+const alvo = new Date(`${CONFIG.datas[contagemFesta ? 'festa' : 'casamento']}T00:00:00-03:00`);
+porId('contagem-titulo').textContent = contagemFesta ? 'Faltam para a nossa festa' : 'Faltam para o nosso casamento';
+const dois = n => String(n).padStart(2, '0');
+function atualizarContagem(){
+  const falta = alvo - Date.now();
+  if (falta <= 0){
+    porId('contagem-grid').hidden = true;
+    porId('contagem-titulo').hidden = true;
+    const fim = porId('contagem-fim');
+    fim.textContent = CONFIG.mensagemAposContagem;
+    fim.hidden = false;
+    return false;
+  }
+  const s = Math.floor(falta / 1000);
+  porId('c-dias').textContent = Math.floor(s / 86400);
+  porId('c-horas').textContent = dois(Math.floor(s % 86400 / 3600));
+  porId('c-min').textContent = dois(Math.floor(s % 3600 / 60));
+  porId('c-seg').textContent = dois(s % 60);
+  return true;
+}
+if (atualizarContagem()){
+  const t = setInterval(() => { if (!atualizarContagem()) clearInterval(t); }, 1000);
+}
+
+/* ---------- Formulários de presença e recados ---------- */
+const MENSAGENS_FORM = {
+  prazo_encerrado: 'As confirmações foram encerradas. Se precisar, fale com os noivos.',
+  muitas_tentativas: 'Muitas tentativas em pouco tempo. Espere um minuto e tente de novo.',
+  nome_invalido: 'Escreva seu nome e sobrenome.',
+  telefone_invalido: 'Digite o celular com DDD, por exemplo (71) 99999-9999.',
+  pessoas_invalido: 'Confira o número de adultos e crianças.'
+};
+
+function avisoForm(id, msg, tipo){
+  const a = porId(id);
+  a.textContent = msg;
+  a.className = `aviso-form ${tipo}`;
+  a.hidden = false;
+}
+
+/* Envia um formulário para a API, com o botão travado enquanto espera */
+async function enviarForm(form, idAviso, corpo, sucesso){
+  if (!CONFIG.apiUrl) return avisoForm(idAviso, 'O envio ainda não está disponível. Tente mais tarde.', 'erro');
+  const botao = form.querySelector('button[type=submit]');
+  const rotulo = botao.textContent;
+  botao.disabled = true; botao.textContent = 'Enviando…';
+  try {
+    const j = await enviarApi({ ...corpo, site: form.elements.site.value });
+    if (!j.ok) throw new Error(j.erro);
+    avisoForm(idAviso, sucesso, 'sucesso');
+    return true;
+  } catch (e) {
+    avisoForm(idAviso, MENSAGENS_FORM[e.message] || 'Não conseguimos enviar agora. Tente de novo em instantes.', 'erro');
+    return false;
+  } finally {
+    botao.disabled = false; botao.textContent = rotulo;
+  }
+}
+
+/* Mesma regra do Apps Script: só dígitos, sem o 55, com DDD (10 ou 11 dígitos) */
+function celularValido(v){
+  let d = String(v).replace(/\D/g, '');
+  if ((d.length === 12 || d.length === 13) && d.startsWith('55')) d = d.slice(2);
+  return d.length === 10 || d.length === 11 ? d : '';
+}
+const pessoasTexto = (a, c) => listaPt.format([
+  `${a} ${a === 1 ? 'adulto' : 'adultos'}`,
+  ...(c ? [`${c} ${c === 1 ? 'criança' : 'crianças'}`] : [])
+]);
+
+/* Confirmação de presença: sem lista prévia; cada envio com o mesmo celular substitui o anterior */
+const formPresenca = porId('form-presenca');
+const prazoPresenca = CONFIG.presenca.prazo ? new Date(`${CONFIG.presenca.prazo}T23:59:59-03:00`) : null;
+
+if (prazoPresenca && Date.now() > prazoPresenca.getTime()){
+  formPresenca.hidden = true;
+  porId('presenca-encerrada').hidden = false;
+}
+
+const atualizarPessoas = () => {
+  const vem = formPresenca.elements.comparece.value === 'sim';
+  porId('presenca-pessoas').hidden = !vem;
+};
+formPresenca.addEventListener('change', e => { if (e.target.name === 'comparece') atualizarPessoas(); });
+
+formPresenca.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = formPresenca.elements;
+  const nome = f.nome.value.trim().replace(/\s+/g, ' ');
+  const vem = f.comparece.value === 'sim';
+  const adultos = vem ? Number(f.adultos.value) : 0;
+  const criancas = vem ? Number(f.criancas.value || 0) : 0;
+  const erro = (msg, campo) => { avisoForm('aviso-presenca', msg, 'erro'); campo.focus(); };
+  if (nome.split(' ').length < 2) return erro(MENSAGENS_FORM.nome_invalido, f.nome);
+  if (!celularValido(f.telefone.value)) return erro(MENSAGENS_FORM.telefone_invalido, f.telefone);
+  if (vem && (!Number.isInteger(adultos) || adultos < 1)) return erro('Informe pelo menos 1 adulto (contando você).', f.adultos);
+  if (vem && (!Number.isInteger(criancas) || criancas < 0)) return erro('Confira o número de crianças.', f.criancas);
+
+  await enviarForm(formPresenca, 'aviso-presenca',
+    { acao:'presenca', nome, telefone: f.telefone.value, comparece: vem ? 'sim' : 'nao', adultos, criancas, mensagem: f.mensagem.value.trim() },
+    vem
+      ? `Presença confirmada: ${pessoasTexto(adultos, criancas)}. Obrigado! Se precisar mudar, é só enviar de novo com o mesmo celular.`
+      : 'Resposta registrada. Que pena que você não poderá ir! Se mudar de ideia, é só enviar de novo com o mesmo celular.');
+});
+
+/* Recados: entram na planilha e só aparecem no mural depois de aprovados */
+const formRecado = porId('form-recado');
+formRecado.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = formRecado.elements;
+  const nome = f.nome.value.trim();
+  const mensagem = f.mensagem.value.trim();
+  if (nome.length < 2){ avisoForm('aviso-recado', 'Escreva seu nome.', 'erro'); return f.nome.focus(); }
+  if (mensagem.length < 2){ avisoForm('aviso-recado', 'Escreva sua mensagem.', 'erro'); return f.mensagem.focus(); }
+  const ok = await enviarForm(formRecado, 'aviso-recado', { acao:'recado', nome, mensagem },
+    'Recado enviado! Ele aparece aqui depois que os noivos aprovarem.');
+  if (ok) f.mensagem.value = '';
+});
+
+async function carregarRecados(){
+  if (!CONFIG.apiUrl) return;
+  try {
+    const j = await (await fetch(`${CONFIG.apiUrl}?acao=recados`)).json();
+    if (!j.ok || !Array.isArray(j.recados)) return;
+    const mural = porId('mural-recados');
+    mural.innerHTML = j.recados.map(r => `
+      <figure class="recado">
+        <blockquote>${esc(r.mensagem)}</blockquote>
+        <figcaption>${esc(r.nome)}</figcaption>
+      </figure>`).join('');
+    mural.hidden = !j.recados.length;
+  } catch (e) { /* sem rede ou API fora do ar: o mural fica como está */ }
+}
+
+/* ---------- Lista de presentes ---------- */
+const mural = porId('mural');
+let filtro = 'todos';
+let ordem = 'padrao';
+let carrinho = [];
+let itens = CONFIG.itens;   // reserva; com CONFIG.apiUrl, a planilha passa a ser a fonte
+
+const listaPt = new Intl.ListFormat('pt-BR', { style:'long', type:'conjunction' });
+const porcento = (parte, todo) => todo > 0 ? Math.min(100, parte / todo * 100) : 0;
+const FLOR_SVG = '<svg class="ilu" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>';
+
+/* Barra da vaquinha: trecho confirmado (sólido) e aguardando confirmação (mais claro).
+   Mostra só dados agregados: nada de valores por pessoa. */
+function barraHTML(it){
+  const conf = porcento(it.arrecadado, it.meta);
+  const pend = Math.min(100 - conf, porcento(it.pendente || 0, it.meta));
+  const n = it.participantes || 0;
+  const nomes = (it.nomes || []).slice(0, 3).map(esc);
+  const texto = `${Math.round(conf)}% confirmado` + (pend > 0 ? `, ${Math.round(pend)}% aguardando confirmação` : '');
+  const quem = n > 0
+    ? `<p class="participantes">${n} ${n === 1 ? 'pessoa participou' : 'pessoas participaram'}${nomes.length ? `, entre elas ${listaPt.format(nomes)}` : ''}</p>`
+    : '';
+  return `
+    <div class="progresso" role="progressbar" aria-label="Progresso da vaquinha" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(conf)}" aria-valuetext="${texto}">
+      <span class="conf" style="width:${conf}%"></span><span class="pend" style="width:${pend}%"></span>
+    </div>
+    <p class="valores"><strong>${fmt(it.arrecadado)}</strong> de ${fmt(it.meta)}${pend > 0 ? ` <span class="aguardando">(+ ${fmt(it.pendente)} aguardando confirmação)</span>` : ''}</p>
+    ${quem}
+    <p class="cota">Cotas de ${fmt(it.cota)}, ou o valor que preferir</p>`;
+}
+
+function seloHTML(it){
+  if (jaDado(it)) return `<span class="selo">${isVaq(it) ? 'Meta alcançada' : (unidadesTotal(it) > 1 ? 'Todas presenteadas' : 'Já presenteado')}</span>`;
+  if (unidadesTotal(it) > 1) return `<span class="selo">Restam ${unidadesRestantes(it)} de ${unidadesTotal(it)}</span>`;
+  return '';
+}
+
+function fotoHTML(it){
+  if (!it.imagem) return `<div class="item-img neutro" role="img" aria-label="${esc(it.nome)}">${FLOR_SVG}</div>`;
+  return `<img class="item-img" src="${esc(it.imagem)}" width="600" height="600" alt="Foto do presente: ${esc(it.nome)}" loading="lazy">`;
+}
+
+function cardHTML(it){
+  const dado = jaDado(it);
+  const preco = isVaq(it) ? barraHTML(it)
+    : `<p class="preco">${fmt(it.valor)}${unidadesTotal(it) > 1 ? ' <small>cada</small>' : ''}</p>`;
+  return `
+    <article class="item${dado ? ' dado' : ''}">
+      <div class="item-foto">${fotoHTML(it)}${seloHTML(it)}</div>
+      <div class="item-corpo">
+        <h3>${esc(it.nome)}</h3>
+        <p class="desc">${esc(it.descricao)}</p>
+        <div class="rodape">
+          ${preco}
+          <button class="btn" type="button" data-id="${esc(it.id)}">${isVaq(it) ? 'Contribuir' : 'Presentear'}</button>
+        </div>
+      </div>
+    </article>`;
+}
+
+const ordenacoes = {
+  padrao: null,
+  az: (a, b) => a.nome.localeCompare(b.nome, 'pt-BR'),
+  menor: (a, b) => valorTotalItem(a) - valorTotalItem(b),
+  maior: (a, b) => valorTotalItem(b) - valorTotalItem(a)
+};
+
+function renderMural(){
+  const lista = itens.filter(it =>
+    filtro === 'todos' ||
+    (filtro === 'vaquinhas' && isVaq(it)) ||
+    (filtro === 'presentes' && !isVaq(it)) ||
+    (filtro === 'disponiveis' && !jaDado(it)));
+  if (ordenacoes[ordem]) lista.sort(ordenacoes[ordem]);
+  mural.innerHTML = lista.length
+    ? lista.map(cardHTML).join('')
+    : '<p class="vazio">Nenhum presente neste filtro.</p>';
+}
+
+document.querySelector('.filtros').addEventListener('click', e => {
+  const b = e.target.closest('button[data-filtro]'); if (!b) return;
+  filtro = b.dataset.filtro;
+  document.querySelectorAll('.filtros button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  renderMural();
+});
+
+porId('ordem').addEventListener('change', e => { ordem = e.target.value; renderMural(); });
+
+mural.addEventListener('click', e => {
+  const b = e.target.closest('button[data-id]'); if (!b) return;
+  abrir(itens.find(i => i.id === b.dataset.id));
+});
+
+/* Foto que não carregar vira a forma neutra (error não borbulha, por isso captura) */
+mural.addEventListener('error', e => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || !img.classList.contains('item-img')) return;
+  const neutro = document.createElement('div');
+  neutro.className = 'item-img neutro';
+  neutro.setAttribute('role', 'img');
+  neutro.setAttribute('aria-label', img.alt);
+  neutro.innerHTML = FLOR_SVG;
+  img.replaceWith(neutro);
+}, true);
+
+/* ---------- Carrinho (guardado nesta aba do navegador para sobreviver à ida e volta do pagamento) ---------- */
+const btnCarrinho = porId('carrinho-btn');
+const CHAVE_CARRINHO = 'lista-carrinho';
+
+function salvarCarrinho(){
+  try { sessionStorage.setItem(CHAVE_CARRINHO, JSON.stringify(carrinho.map(({ it, ...linha }) => linha))); }
+  catch (e) { /* sem armazenamento: o carrinho vive só enquanto a página estiver aberta */ }
+}
+function restaurarCarrinho(){
+  try {
+    const salvo = JSON.parse(sessionStorage.getItem(CHAVE_CARRINHO) || '[]');
+    carrinho = salvo.map(l => ({ ...l, it: itens.find(i => i.id === l.id) })).filter(l => l.it);
+  } catch (e) { carrinho = []; }
+}
+function atualizarCarrinho(){
+  const n = carrinho.length;
+  btnCarrinho.hidden = n === 0;
+  porId('carrinho-resumo').textContent = `${n} ${n === 1 ? 'item' : 'itens'} · ${fmt(totalCarrinho(carrinho))}`;
+  salvarCarrinho();
+}
+btnCarrinho.addEventListener('click', () => { dlg.showModal(); passoCarrinho(); });
+
+/* ---------- Fluxo de contribuição ---------- */
+const dlg = porId('dlg');
+const corpo = porId('corpo');
+const $ = s => corpo.querySelector(s);
+let st = {};
+
+porId('fechar').onclick = () => dlg.close();
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+function mostrar(html){
+  corpo.innerHTML = html;
+  const h = corpo.querySelector('h2');
+  if (h){ h.id = 'dlg-titulo'; h.tabIndex = -1; h.focus(); }
+}
+const cab = (rotulo, titulo) => `${rotulo ? `<p class="passo">${rotulo}</p>` : ''}<h2>${titulo}</h2>`;
+const erroEm = (msg, campo) => { const e = $('#erro'); e.textContent = msg; e.hidden = false; if (campo) campo.focus(); };
+
+function abrir(it){
+  st = { it, qtd:1, modo:'sugerido' };
+  const noCarrinho = carrinho.find(l => l.id === it.id);   // já está no carrinho: começa pelo que foi escolhido
+  if (noCarrinho){ st.qtd = noCarrinho.qtd; st.modo = noCarrinho.modo; st.valorLivre = noCarrinho.modo === 'livre' ? noCarrinho.valor : undefined; }
+  dlg.showModal();
+  jaDado(it) ? passoAviso() : passoValor();
+}
+
+function passoAviso(){
+  const it = st.it;
+  const msg = isVaq(it)
+    ? `A vaquinha de <strong>${esc(it.nome)}</strong> já alcançou a meta.`
+    : (unidadesTotal(it) > 1
+      ? `Todas as unidades de <strong>${esc(it.nome)}</strong> já foram presenteadas.`
+      : `<strong>${esc(it.nome)}</strong> já foi presenteado por outro convidado.`);
+  mostrar(`${cab('Antes de continuar', isVaq(it) ? 'Esta vaquinha já chegou à meta' : 'Este presente já foi dado')}
+    <p>${msg} Você ainda pode ${isVaq(it) ? 'contribuir' : 'presentear'} mesmo assim (o valor vai para ${esc(CONFIG.destinoExtra)}) ou fazer uma contribuição livre por Pix, com o valor que quiser.</p>
+    <div class="acoes">
+      <button class="btn" type="button" id="seguir">${isVaq(it) ? 'Contribuir mesmo assim' : 'Presentear mesmo assim'}</button>
+      <button class="btn sec" type="button" id="ir-livre">Contribuição livre por Pix</button>
+    </div>
+    <p><button class="link" type="button" id="voltar">Ver outros presentes</button></p>`);
+  $('#seguir').onclick = passoValor;
+  $('#ir-livre').onclick = irParaContribuicaoLivre;
+  $('#voltar').onclick = () => dlg.close();
+}
+
+/* Fecha a janela e leva até a seção "Contribuição livre" (QR Code do Pix direto) */
+function irParaContribuicaoLivre(){
+  dlg.close();
+  const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  porId('contribuicao-livre').scrollIntoView({ behavior: suave ? 'smooth' : 'auto' });
+  porId('pix-livre-valor').focus({ preventScroll: true });
+}
+
+/* Opção "valor sugerido": cotas (vaquinha), unidades (presente com várias unidades) ou valor fixo */
+function opcaoSugerida(it){
+  const marcada = st.modo === 'sugerido' ? 'checked' : '';
+  const maxQtd = isVaq(it) ? 50 : unidadesRestantes(it);
+  if (!isVaq(it) && maxQtd < 2){
+    return `<label class="opcao">
+        <input type="radio" name="modo" value="sugerido" ${marcada}>
+        <span><span class="op-tit">Valor do presente</span><span class="op-val">${fmt(it.valor)}</span></span>
+      </label>`;
+  }
+  const un = isVaq(it) ? 'cota' : 'unidade';
+  return `<label class="opcao">
+      <input type="radio" name="modo" value="sugerido" ${marcada}>
+      <span>
+        <span class="op-tit">${isVaq(it) ? 'Cotas' : 'Unidades'} de ${fmt(valorLink(it))}${isVaq(it) ? '' : ` <small>(restam ${maxQtd})</small>`}</span>
+        <span class="contador">
+          <button type="button" data-d="-1" aria-label="Uma ${un} a menos">−</button>
+          <output id="nc" aria-live="polite">${st.qtd}</output>
+          <button type="button" data-d="1" aria-label="Uma ${un} a mais">+</button>
+        </span>
+        <span class="op-val" id="tot">${fmt(valorLink(it) * st.qtd)}</span>
+      </span>
+    </label>`;
+}
+
+function passoValor(){
+  const it = st.it;
+  const maxQtd = isVaq(it) ? 50 : Math.max(1, unidadesRestantes(it));
+  const jaNoCarrinho = carrinho.some(l => l.id === it.id);
+  const aceitaOutroValor = isVaq(it);   // presentes têm preço fechado; vaquinhas aceitam qualquer valor
+  if (!aceitaOutroValor) st.modo = 'sugerido';
+  mostrar(`${cab(aceitaOutroValor ? 'Escolha o valor' : 'Confira o presente', esc(it.nome))}
+    ${aceitaOutroValor ? '<p class="nota">Qualquer valor é recebido com carinho.</p>' : ''}
+    <div class="opcoes">
+      ${opcaoSugerida(it)}
+      ${aceitaOutroValor ? `<label class="opcao">
+        <input type="radio" name="modo" value="livre" ${st.modo === 'livre' ? 'checked' : ''}>
+        <span>
+          <span class="op-tit">Outro valor</span>
+          <span class="campo-valor">R$ <input type="number" id="livre" min="1" step="0.01" inputmode="decimal" placeholder="0,00" aria-label="Outro valor em reais" value="${st.modo === 'livre' ? st.valorLivre ?? '' : ''}"></span>
+        </span>
+      </label>` : ''}
+    </div>
+    ${aceitaOutroValor ? '' : '<p class="nota">Prefere dar outro valor? Use a <button class="link" type="button" id="link-livre">contribuição livre por Pix</button>.</p>'}
+    <p class="erro" id="erro" hidden></p>
+    <div class="acoes"><button class="btn" type="button" id="no-carrinho">${jaNoCarrinho ? 'Atualizar no carrinho' : 'Adicionar ao carrinho'}</button></div>`);
+
+  const radio = v => corpo.querySelector(`input[name=modo][value=${v}]`);
+  corpo.querySelectorAll('.contador button').forEach(b => b.onclick = e => {
+    e.preventDefault();
+    st.qtd = Math.min(maxQtd, Math.max(1, st.qtd + Number(b.dataset.d)));
+    $('#nc').textContent = st.qtd;
+    $('#tot').textContent = fmt(valorLink(it) * st.qtd);
+    radio('sugerido').checked = true;
+  });
+  if (aceitaOutroValor) $('#livre').addEventListener('focus', () => radio('livre').checked = true);
+  else $('#link-livre').onclick = irParaContribuicaoLivre;
+
+  /* Devolve a linha escolhida ({id, nome, valor, qtd, modo, it}) ou null se o valor for inválido */
+  const lerLinha = () => {
+    const modo = corpo.querySelector('input[name=modo]:checked').value;
+    if (modo === 'livre'){
+      const v = parseFloat(String($('#livre').value).replace(',', '.'));
+      if (!(v >= 1)) return erroEm('Digite um valor a partir de R$ 1,00.', $('#livre')), null;
+      if (v > 20000) return erroEm('Para valores acima de R$ 20.000,00, fale com os noivos.', $('#livre')), null;
+      return { id: it.id, nome: it.nome, valor: Math.round(v * 100) / 100, qtd: 1, modo: 'livre', it };
+    }
+    return { id: it.id, nome: it.nome, valor: emCentavos(valorLink(it)) * st.qtd / 100, qtd: st.qtd, modo: 'sugerido', it };
+  };
+
+  $('#no-carrinho').onclick = () => {
+    const linha = lerLinha(); if (!linha) return;
+    carrinho = colocarNoCarrinho(carrinho, linha);
+    atualizarCarrinho();
+    passoAdicionado(linha);
+  };
+}
+
+/* Depois de escolher: ir para o carrinho ou continuar escolhendo */
+function passoAdicionado(linha){
+  mostrar(`<div class="obrigado">
+      <h2>Adicionado ao carrinho</h2>
+      <p><strong>${esc(linha.nome)}</strong>: ${fmt(linha.valor)}</p>
+      <p class="nota">No carrinho: ${carrinho.length} ${carrinho.length === 1 ? 'item' : 'itens'}, total de ${fmt(totalCarrinho(carrinho))}.</p>
+      <p>Quer ir para o carrinho e pagar, ou continuar contribuindo com outros presentes?</p>
+      <div class="acoes">
+        <button class="btn" type="button" id="ver-carrinho">Ir para o carrinho</button>
+        <button class="btn sec" type="button" id="continuar">Continuar contribuindo</button>
+      </div>
+    </div>`);
+  $('#ver-carrinho').onclick = passoCarrinho;
+  $('#continuar').onclick = () => dlg.close();
+}
+
+function detalheLinha(l){
+  if (l.modo === 'livre') return 'outro valor';
+  if (isVaq(l.it)) return `${l.qtd} ${l.qtd === 1 ? 'cota' : 'cotas'}`;
+  return l.qtd > 1 ? `${l.qtd} unidades` : '';
+}
+
+const MENSAGENS_ERRO = {
+  muitas_tentativas: 'Muitas tentativas em pouco tempo. Espere um minuto e tente de novo.',
+  valor_invalido: 'Algum valor do carrinho não é aceito (presentes têm preço fechado; vaquinhas aceitam de R$ 1,00 a R$ 20.000,00). Remova o item e escolha de novo.',
+  item_invalido: 'Um dos presentes saiu da lista. Remova-o do carrinho e tente de novo.',
+  pagamento_nao_configurado: 'O pagamento ainda não está disponível. Se quiser, use a contribuição livre por Pix, logo abaixo da lista.'
+};
+
+function passoCarrinho(){
+  if (!carrinho.length){
+    mostrar(`<h2>Seu carrinho está vazio</h2>
+      <p>Escolha um presente ou uma vaquinha e use “Adicionar ao carrinho”.</p>
+      <div class="acoes"><button class="btn" type="button" id="fechar-carrinho">Ver a lista</button></div>`);
+    $('#fechar-carrinho').onclick = () => dlg.close();
+    return;
+  }
+  const dados = st.dados || (st.dados = { nome:'', mostrar:false, recado:'' });
+  mostrar(`<h2>Seu carrinho</h2>
+    <ul class="carrinho-lista">
+      ${carrinho.map(l => `
+        <li>
+          <span class="cl-nome">${esc(l.nome)}${detalheLinha(l) ? ` <small>${esc(detalheLinha(l))}</small>` : ''}${jaDado(l.it) ? `<small class="cl-aviso">já dado: vai para ${esc(CONFIG.destinoExtra)}</small>` : ''}</span>
+          <strong>${fmt(l.valor)}</strong>
+          <button class="link" type="button" data-remover="${esc(l.id)}" aria-label="Remover ${esc(l.nome)} do carrinho">Remover</button>
+        </li>`).join('')}
+    </ul>
+    <p class="carrinho-total"><span>Total</span> <strong>${fmt(totalCarrinho(carrinho))}</strong></p>
+    <div class="carrinho-dados">
+      <label class="campo">Seu nome (para sabermos a quem agradecer)<input id="nome" autocomplete="name" maxlength="80" value="${esc(dados.nome)}"></label>
+      <label class="radio"><input type="checkbox" id="mostrar" ${dados.mostrar ? 'checked' : ''}> Mostrar meu nome na lista de quem participou (nunca mostramos o valor)</label>
+      <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
+      <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </div>
+    <p class="nota">Você vai para a página segura da InfinitePay para pagar com Pix ou cartão. Os dados do cartão são digitados só lá: este site não tem acesso a eles.</p>
+    <p class="erro" id="erro" hidden></p>
+    <div class="acoes">
+      <button class="btn" type="button" id="pagar-carrinho">Pagar com Pix ou cartão</button>
+      <button class="btn sec" type="button" id="continuar">Continuar contribuindo</button>
+    </div>`);
+
+  const guardarDados = () => { dados.nome = $('#nome').value; dados.mostrar = $('#mostrar').checked; dados.recado = $('#msg').value; };
+  ['#nome', '#mostrar', '#msg'].forEach(s => $(s).addEventListener('input', guardarDados));
+  corpo.querySelectorAll('[data-remover]').forEach(b => b.onclick = () => {
+    carrinho = retirarDoCarrinho(carrinho, b.dataset.remover);
+    atualizarCarrinho();
+    passoCarrinho();
+  });
+  $('#continuar').onclick = () => dlg.close();
+
+  $('#pagar-carrinho').onclick = async () => {
+    guardarDados();
+    const nome = dados.nome.trim();
+    if (dados.mostrar && !nome) return erroEm('Escreva seu nome para ele aparecer na lista.', $('#nome'));
+    if (!CONFIG.apiUrl) return erroEm(MENSAGENS_ERRO.pagamento_nao_configurado);
+    const botao = $('#pagar-carrinho');
+    botao.disabled = true; botao.textContent = 'Abrindo o pagamento…';
+    try {
+      const j = await enviarApi({
+        acao:'criar_pagamento', itens: itensDoPedido(carrinho),
+        nome, mostrar_nome: dados.mostrar, recado: dados.recado.trim(), site: $('#isca').value
+      });
+      if (!j.ok || !j.url) throw new Error(j.erro || 'sem_url');
+      abrirCheckout(j.url);
+    } catch (e) {
+      botao.disabled = false; botao.textContent = 'Pagar com Pix ou cartão';
+      erroEm(MENSAGENS_ERRO[e.message] || 'Não conseguimos abrir o pagamento agora. Tente de novo em instantes.');
+    }
+  };
+}
+
+/* Vai para a página de pagamento da InfinitePay (só aceita esse endereço) */
+function abrirCheckout(url){
+  if (!/^https:\/\/checkout\.infinitepay\.io\//.test(url)) throw new Error('url_invalida');
+  window.location.href = url;
+}
+
+/* ---------- Volta da InfinitePay: o site confere o pagamento e agradece ---------- */
+const linkSeguro = u => /^https:\/\/[^\s"'<>]+$/.test(String(u || '')) ? u : '';
+
+async function verificarRetorno(){
+  const p = new URLSearchParams(location.search);
+  if (!p.get('order_nsu')) return;
+  const pedido = { order_nsu: p.get('order_nsu'), transaction_nsu: p.get('transaction_nsu'), slug: p.get('slug') };
+  const recibo = linkSeguro(p.get('receipt_url'));
+  history.replaceState(null, '', location.pathname + location.hash);   // limpa a URL: não reprocessa ao recarregar
+  dlg.showModal();
+  mostrar(`<div class="obrigado"><h2>Confirmando seu pagamento…</h2><p class="nota">Isso leva só alguns segundos.</p></div>`);
+  let status = 'pendente';
+  if (CONFIG.apiUrl && pedido.transaction_nsu && pedido.slug){
+    try { const j = await enviarApi({ acao:'retorno_infinitepay', ...pedido }); if (j.ok) status = j.status; }
+    catch (e) { /* a confirmação também chega pelo aviso da InfinitePay */ }
+  }
+  if (status === 'aprovado'){ carrinho = []; atualizarCarrinho(); carregarPresentes(); }
+  passoObrigado(status, recibo);
+}
+
+function passoObrigado(status, recibo){
+  const aprovado = status === 'aprovado';
+  mostrar(`<div class="obrigado">
+      <svg class="ilu selo-flor" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>
+      <h2>${aprovado ? 'Muito obrigado!' : 'Recebemos seu pedido'}</h2>
+      <p>${aprovado
+        ? 'Pagamento confirmado. Seu carinho agora faz parte da nossa casa nova.'
+        : 'Assim que a InfinitePay confirmar o pagamento, ele aparece na lista. Isso pode levar alguns minutos. Se você não chegou a pagar, seu carrinho continua salvo.'}</p>
+      ${recibo ? `<p><a class="link" href="${esc(recibo)}" target="_blank" rel="noopener noreferrer">Ver comprovante</a></p>` : ''}
+      <div class="acoes"><button class="btn" type="button" id="fim">Voltar à lista</button></div>
+    </div>`);
+  $('#fim').onclick = () => dlg.close();
+}
+
+/* ---------- Contribuição livre por Pix (não grava nada e não entra nas barras dos presentes) ---------- */
+porId('pix-livre-gerar').addEventListener('click', () => {
+  const campo = porId('pix-livre-valor');
+  const erro = porId('pix-livre-erro');
+  const bruto = String(campo.value).trim().replace(',', '.');
+  let valor = null;
+  if (bruto){
+    const v = parseFloat(bruto);
+    if (!(v >= 1) || v > 20000){
+      erro.textContent = 'Digite um valor entre R$ 1,00 e R$ 20.000,00, ou deixe em branco.';
+      erro.hidden = false; campo.focus(); return;
+    }
+    valor = Math.round(v * 100) / 100;
+  }
+  erro.hidden = true;
+  const payload = pixPayload({ ...CONFIG.pix, valor, txid: '***' });
+  const res = porId('pix-livre-resultado');
+  res.innerHTML = `
+    <div class="pix">
+      <div class="qr" id="pix-livre-qr" role="img" aria-label="QR Code do Pix"></div>
+      <div>
+        <p>${valor ? `Valor: <strong>${fmt(valor)}</strong>. ` : 'Sem valor definido: você digita no app do banco. '}Abra o app do banco, escolha Pix e leia o QR Code, ou use o código copia e cola.</p>
+        <textarea id="pix-livre-cc" class="cc" rows="3" readonly aria-label="Código Pix copia e cola">${esc(payload)}</textarea>
+        <button class="btn sec" type="button" id="pix-livre-copiar">Copiar código Pix</button>
+      </div>
+    </div>
+    <p class="alerta">Antes de confirmar no banco, confira se o recebedor aparece como <strong>${esc(CONFIG.pix.nomeRecebedor)}</strong>.</p>`;
+  if (window.QRCode){
+    new QRCode(porId('pix-livre-qr'), { text: payload, width: 336, height: 336, correctLevel: QRCode.CorrectLevel.M });
+  } else {
+    porId('pix-livre-qr').remove();
+  }
+  porId('pix-livre-copiar').onclick = async () => {
+    try { await navigator.clipboard.writeText(payload); }
+    catch { porId('pix-livre-cc').select(); document.execCommand('copy'); }
+    porId('pix-livre-copiar').textContent = 'Código copiado';
+  };
+});
+
+/* ---------- API (planilha Google via Apps Script) ---------- */
+const clienteId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2);
+const caminhoImagemOk = s => /^img\/[\w\-\/.]+$/.test(String(s || ''));
+
+/* A API fala em centavos; o resto do site usa reais. A conversão fica só aqui. */
+const deApi = a => ({
+  id: a.id, tipo: a.tipo, nome: a.nome, descricao: a.descricao,
+  valor: a.valor_centavos / 100, meta: a.meta_centavos / 100, cota: a.cota_centavos / 100,
+  quantidade: a.quantidade, dadas: a.unidades_dadas, comprado: !!a.comprado,
+  arrecadado: a.arrecadado_confirmado / 100, pendente: a.arrecadado_pendente / 100,
+  participantes: a.participantes, nomes: a.nomes || [],
+  imagem: caminhoImagemOk(a.imagem) ? a.imagem : ''
+});
+
+const itensDoPedido = linhas => linhas.map(l => ({ id: l.id, valor_centavos: emCentavos(l.valor) }));
+
+async function enviarApi(corpo){
+  /* text/plain evita a requisição prévia de CORS, que o Apps Script não responde */
+  const r = await fetch(CONFIG.apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ...corpo, cliente: clienteId })
+  });
+  return r.json();
+}
+
+let ultimaResposta = '';
+async function carregarPresentes(){
+  if (!CONFIG.apiUrl) return;
+  try {
+    const j = await (await fetch(`${CONFIG.apiUrl}?acao=presentes`)).json();
+    if (!j.ok || !Array.isArray(j.itens) || !j.itens.length) return;
+    const nova = JSON.stringify(j.itens);
+    if (nova === ultimaResposta) return;
+    ultimaResposta = nova;
+    itens = j.itens.map(deApi);
+    carrinho.forEach(l => { l.it = itens.find(i => i.id === l.id) || l.it; });
+    renderMural();
+  } catch (e) { /* sem rede ou API fora do ar: continua com o que já está na tela (config.js) */ }
+}
+
+/* ---------- Início ---------- */
+restaurarCarrinho();
+renderMural();
+atualizarCarrinho();
+verificarRetorno();
+
+/* Lê a planilha ao abrir e a cada 30 s (pausa com a aba oculta) */
+if (CONFIG.apiUrl){
+  carregarPresentes();
+  carregarRecados();
+  setInterval(() => { if (!document.hidden) carregarPresentes(); }, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden){ carregarPresentes(); carregarRecados(); } });
+}

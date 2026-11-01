@@ -1,0 +1,22 @@
+# Credenciais e testes locais
+.env
+*.env
+segredos*
+teste_*.py
+*.ipynb
+.ipynb_checkpoints/
+
+# Dados exportados (convidados, extratos)
+*.csv
+*.ofx
+*.xlsx
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+data/
