@@ -23,8 +23,14 @@ porId('nome2').textContent = CONFIG.casal.nome2;
 porId('marca').textContent = `${CONFIG.casal.nome1[0]} & ${CONFIG.casal.nome2[0]}`;
 porId('data-hero').innerHTML = `${ddC}<span aria-hidden="true">|</span>${mmC}<span aria-hidden="true">|</span>${aaaaC}`;
 porId('data-hero').setAttribute('aria-label', `${Number(ddC)}/${Number(mmC)}/${aaaaC}`);
-porId('festa').textContent = CONFIG.festa || '';
-porId('festa').hidden = !CONFIG.festa;
+/* Caixa de destaque: o convite é para a celebração (13/12), não para o casamento (26/11) */
+if (CONFIG.festa){
+  porId('festa-titulo').textContent = CONFIG.festa.titulo;
+  porId('festa-data').textContent = CONFIG.festa.data;
+  porId('festa-traje').textContent = CONFIG.festa.traje || '';
+  porId('festa-traje-linha').hidden = !CONFIG.festa.traje;
+  porId('convite-festa').hidden = false;
+}
 porId('intro').textContent = CONFIG.intro;
 porId('aviso-config').hidden = !modoExemplo;
 
@@ -74,7 +80,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuNav.cl
 /* ---------- Contagem regressiva ---------- */
 const contagemFesta = CONFIG.contagemPara !== 'casamento';
 const alvo = new Date(`${CONFIG.datas[contagemFesta ? 'festa' : 'casamento']}T00:00:00-03:00`);
-porId('contagem-titulo').textContent = contagemFesta ? 'Faltam para a nossa festa' : 'Faltam para o nosso casamento';
+porId('contagem-titulo').textContent = contagemFesta ? 'Faltam para a nossa celebração' : 'Faltam para o nosso casamento';
 const dois = n => String(n).padStart(2, '0');
 function atualizarContagem(){
   const falta = alvo - Date.now();

@@ -10,7 +10,12 @@ const CONFIG = {
 
   // Datas no formato AAAA-MM-DD
   datas: { casamento: "2026-11-26", festa: "2026-12-13" },
-  festa: "Festa de comemoração em 13 de dezembro de 2026",   // deixe "" para esconder
+  // Caixa de destaque no topo: o convite é para a celebração (deixe festa: null para esconder)
+  festa: {
+    titulo: "Celebração entre família e amigos",
+    data: "Domingo, 13 de dezembro de 2026",
+    traje: "esporte casual, clima de piscina (se quiser, leve sua roupa de banho)"
+  },
 
   // Contagem regressiva: "festa" ou "casamento"
   contagemPara: "festa",
