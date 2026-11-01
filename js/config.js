@@ -5,7 +5,7 @@ const CONFIG = {
   casal: {
     nome1: "Lídia",
     nome2: "Bruno",
-    texto: "Dois jeitos de ver o mundo que se encontraram e decidiram dividir a mesma casa. Obrigado por fazer parte deste começo com a gente."
+    texto: "O que os une está no que é mais profundo. Valores, respeito e a escolha de construir juntos. Entre eles há parceria, conexão e uma união que se fortalece a cada dia. Ela tem um olhar sensível que enxerga o que muitos não veem, e ele sabe ouvir e valorizar cada conselho, porque juntos se completam. Colecionam viagens, descobrem novos sabores à mesa e transformam cada experiência em memória. Agora, dividem também a mesma casa, o sonho de formar uma família e uma vida inteira pela frente."
   },
 
   // Datas no formato AAAA-MM-DD
