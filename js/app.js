@@ -527,6 +527,10 @@ function passoCarrinho(){
   }
   const dados = st.dados || (st.dados = { nome:'', mostrar:false, recado:'' });
   mostrar(`<h2>Seu carrinho</h2>
+    <div class="atalho-direto">
+      <p>Achou difícil? Faça um <strong>Pix direto</strong> para os noivos, sem cadastro e sem código.</p>
+      <button class="btn btn-direto" type="button" data-pix-direto>Pix direto de ${fmt(totalCarrinho(carrinho))}</button>
+    </div>
     <ul class="carrinho-lista">
       ${carrinho.map(l => `
         <li>
@@ -542,13 +546,15 @@ function passoCarrinho(){
       <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
       <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
-    <p class="nota">Você vai para a página segura da InfinitePay, autorizada pelo Banco Central, e paga com Pix ou cartão como em qualquer compra pela internet (ex.: Mercado Livre, Shopee…). Você não cria conta: ela só pede telefone, e-mail e nome para enviar um código de segurança pelo WhatsApp e evitar fraudes. Este site não recebe esses dados nem os do cartão. <button class="link" type="button" data-ajuda="privacidade">Seus dados (LGPD)</button></p>
+    <p class="nota"><strong>Pagar com Pix ou cartão:</strong> você vai para a página segura da InfinitePay, autorizada pelo Banco Central, e paga como em qualquer compra pela internet (ex.: Mercado Livre, Shopee…). O presente é confirmado sozinho na lista. Você não cria conta: ela só pede telefone, e-mail e nome para enviar um código de segurança pelo WhatsApp e evitar fraudes. Este site não recebe esses dados nem os do cartão. <button class="link" type="button" data-ajuda="privacidade">Seus dados (LGPD)</button></p>
     <p class="ajuda-chamada no-carrinho"><button class="btn-ajuda" type="button" data-ajuda="dados"><span class="btn-ajuda-icone" aria-hidden="true">?</span> Primeira vez? Veja como pagar, passo a passo</button></p>
     <p class="erro" id="erro" hidden></p>
     <div class="acoes">
       <button class="btn" type="button" id="pagar-carrinho">Pagar com Pix ou cartão</button>
       <button class="btn sec" type="button" id="continuar">Continuar contribuindo</button>
-    </div>`);
+      <button class="btn btn-direto" type="button" data-pix-direto>Pix direto para os noivos</button>
+    </div>
+    <p class="nota"><strong>Pix direto:</strong> você vai para a Contribuição livre com o valor do carrinho já preenchido e paga pelo aplicativo do seu banco, com o QR Code ou o Pix copia e cola. Esse Pix vai direto para os noivos, sem passar pelo site: depois, avise-os para registrarem o seu presente na lista.</p>`);
 
   const guardarDados = () => { dados.nome = $('#nome').value; dados.mostrar = $('#mostrar').checked; dados.recado = $('#msg').value; };
   ['#nome', '#mostrar', '#msg'].forEach(s => $(s).addEventListener('input', guardarDados));
@@ -558,6 +564,7 @@ function passoCarrinho(){
     passoCarrinho();
   });
   $('#continuar').onclick = () => dlg.close();
+  corpo.querySelectorAll('[data-pix-direto]').forEach(b => b.onclick = () => { guardarDados(); pixDiretoDoCarrinho(dados); });
 
   $('#pagar-carrinho').onclick = async () => {
     guardarDados();
@@ -579,6 +586,24 @@ function passoCarrinho(){
       erroEm(MENSAGENS_ERRO[e.message] || 'Não conseguimos abrir o pagamento agora. Tente de novo em instantes.');
     }
   };
+}
+
+/* Pix direto a partir do carrinho: leva à Contribuição livre com o total preenchido e o QR Code pronto.
+   Como esse Pix não passa pelo site, o aviso aos noivos já vai com nome, itens, valor e recado,
+   e o carrinho é zerado para não ficar pendente (nem ser pago de novo pelo site). */
+function pixDiretoDoCarrinho(dados){
+  const total = totalCarrinho(carrinho);
+  const itensTexto = carrinho.map(l => l.nome + (detalheLinha(l) ? ` (${detalheLinha(l)})` : '')).join(', ');
+  const nome = dados.nome.trim(), recado = dados.recado.trim();
+  const aviso = porId('contribuicao-livre').querySelector('.livre-avisar .contatos');
+  aviso.dataset.rotulo = 'Avisar';
+  aviso.dataset.mensagem = `Oi! ${nome ? `Aqui é ${nome}. ` : ''}Fiz um Pix direto de ${fmt(total)} para: ${itensTexto}.${recado ? ` Recado: ${recado}` : ''}`;
+  carrinho = [];
+  atualizarCarrinho();
+  irParaContribuicaoLivre();
+  porId('pix-livre-valor').value = total.toFixed(2);
+  porId('pix-livre-gerar').click();
+  mostrarContatos(aviso);
 }
 
 /* Vai para a página de pagamento da InfinitePay (só aceita esse endereço) */
@@ -714,16 +739,22 @@ async function mostrarContatos(caixa){
     caixa.textContent = 'Não conseguimos carregar o contato agora. Se você tem o WhatsApp dos noivos, mande uma mensagem para eles.';
   }
 }
-// Caixas da página que mostram o contato sozinhas quando chegam perto da tela (uma consulta só, depois fica guardado)
+// Caixas da página que mostram o contato sozinhas quando chegam perto da tela (uma consulta só, depois fica guardado).
+// Observa a caixa inteira: a área dos botões começa escondida e, escondida, nunca "entra" na tela.
 const vigiaContatos = new IntersectionObserver(entradas => entradas.forEach(en => {
   if (!en.isIntersecting) return;
   vigiaContatos.unobserve(en.target);
-  mostrarContatos(en.target);
+  mostrarContatos(en.target.querySelector('[data-contatos-ao-ver]'));
 }), { rootMargin: '300px 0px' });
-document.querySelectorAll('[data-contatos-ao-ver]').forEach(c => vigiaContatos.observe(c));
+document.querySelectorAll('[data-contatos-ao-ver]').forEach(c => vigiaContatos.observe(c.closest('[data-caixa-contatos]')));
 dlgAjuda.addEventListener('click', e => { if (e.target === dlgAjuda) dlgAjuda.close(); });
 
 /* ---------- Contribuição livre por Pix (não grava nada e não entra nas barras dos presentes) ---------- */
+// Se a pessoa mudar o valor à mão, o aviso aos noivos volta à mensagem geral (sem os itens do carrinho)
+porId('pix-livre-valor').addEventListener('input', () => {
+  const aviso = porId('contribuicao-livre').querySelector('.livre-avisar .contatos');
+  delete aviso.dataset.mensagem; delete aviso.dataset.rotulo;
+});
 porId('pix-livre-gerar').addEventListener('click', () => {
   const campo = porId('pix-livre-valor');
   const erro = porId('pix-livre-erro');

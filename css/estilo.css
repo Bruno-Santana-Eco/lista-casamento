@@ -6,7 +6,8 @@
   --destaque-escuro:#A8491F;   /* texto e botões sobre claro (contraste AA) */
   --on-destaque:#3A4559; --on-escuro:#FFFFFF;
   --destaque-suave:#FCE6DB; --mancha:#F7CFC4; --line:#EBD9CC;
-  --ajuda:#2C7696;             /* azul, oposto do pêssego: a interrogação da ajuda */
+  --ajuda:#2C7696;             /* azul, oposto do pêssego: a interrogação da ajuda e o Pix direto */
+  --ajuda-escuro:#1F5A78; --ajuda-suave:#E3F0F6;
   --alerta-bg:#FFF5DB; --alerta-ink:#5E4500; --erro:#B3261E;
   --sucesso-bg:#E7F3EA; --sucesso-ink:#1E5631; --erro-bg:#FCEBEA;
   --bilhete-1:#FFFDF8; --bilhete-2:#FCEBDF; --bilhete-3:#FBE4E1;   /* cores dos recados no mural */
@@ -22,7 +23,7 @@
   --destaque:#F4A27E; --destaque-medio:#F4A27E; --destaque-escuro:#F4A27E;
   --on-destaque:#1E2430; --on-escuro:#1E2430;
   --destaque-suave:#3A3038; --mancha:#5A3C3A; --line:#3C4558;
-  --ajuda:#7FC3E3;
+  --ajuda:#7FC3E3; --ajuda-escuro:#A9D8EE; --ajuda-suave:#22384A;
   --alerta-bg:#2E2610; --alerta-ink:#F1D58A; --erro:#FFB4AB;
   --sucesso-bg:#1D3324; --sucesso-ink:#B7E4C2; --erro-bg:#3B2222;
   --bilhete-1:#272F3E; --bilhete-2:#33303A; --bilhete-3:#3A2F36;
@@ -287,6 +288,11 @@ body:has(.carrinho-flutuante:not([hidden])) .rodape-site{ padding-bottom:6rem; }
 .carrinho-total strong{ font-family:var(--serif); font-size:1.9rem; }
 .carrinho-dados{ margin:1.25rem 0 .5rem; padding-top:1rem; border-top:1px solid var(--line); }
 .carrinho-dados .radio{ margin:-.3rem 0 .9rem; font-size:.92rem; }
+/* Pix direto (mais simples): atalho no topo do carrinho e terceira opção embaixo, em azul para não confundir com o Pix pelo site */
+.atalho-direto{ background:var(--ajuda-suave); border:1.5px solid var(--ajuda); border-radius:14px; padding:.85rem 1rem 1rem; margin:0 0 .5rem; }
+.atalho-direto p{ margin:0 0 .65rem; color:var(--ajuda-escuro); }
+.atalho-direto .btn{ width:100%; }
+.btn-direto{ background:var(--ajuda); border-color:var(--ajuda); }
 
 /* ---------- Ajuda passo a passo ---------- */
 .ajuda-chamada{ text-align:center; margin:-.5rem 0 2.25rem; }
