@@ -7,7 +7,7 @@ const modulo = { exports: {} };
 new Function('module', codigo)(modulo);
 const {
   agregarPresentes, validarContribuicao, montarCheckout, pagamentoConfirmado, contaComoPendente, limparTexto, verdadeiro,
-  normalizarCelular, validarPresenca, planejarPresenca, prazoEncerrado, novoIdResposta, validarRecado, proximaLinhaLivre, CFG
+  normalizarCelular, validarPresenca, planejarPresenca, prazoEncerrado, novoIdResposta, validarRecado, proximaLinhaLivre, lerContatos, CFG
 } = modulo.exports;
 
 const itens = [
@@ -130,6 +130,8 @@ assert.equal(pagamentoConfirmado({ ...pago, success: false }, 94820), false);
 assert.equal(pagamentoConfirmado({ success: false }, 94820), false);                    // resposta a dados falsos (testado na InfinitePay)
 assert.equal(pagamentoConfirmado({ success: true, paid: false, amount: 0 }, 94820), false);
 assert.equal(pagamentoConfirmado({ ...pago, amount: 100 }, 94820), false);              // pagou R$ 1 por um pedido de R$ 948,20
+assert.equal(pagamentoConfirmado({ ...pago, amount: 99561 }, 94820), true);             // cartão: taxa embutida no valor (nunca menor)
+assert.equal(pagamentoConfirmado({ ...pago, amount: 94819 }, 94820), false);            // 1 centavo a menos não aprova
 assert.equal(pagamentoConfirmado({ ...pago, amount: '94820' }, 94820), true);
 assert.equal(pagamentoConfirmado(null, 94820), false);
 assert.equal(pagamentoConfirmado(pago, 0), false);
@@ -201,5 +203,13 @@ assert.equal(proximaLinhaLivre(colA(['criado_em'])), 2);                        
 assert.equal(proximaLinhaLivre(colA(['criado_em', '', '', ''])), 2);                       // aba vazia com 1000 linhas
 assert.equal(proximaLinhaLivre(colA(['criado_em', new Date(), new Date(), '', '', ''])), 4); // 2 registros
 assert.equal(proximaLinhaLivre(colA(['criado_em', new Date(), '', new Date(), ''])), 5);     // linha apagada no meio: entra depois do último
+
+// ---------- Contatos dos noivos (números fictícios) ----------
+assert.deepEqual(
+  lerContatos('Ana=5571988887777; Beto=+55 (71) 98765-4321 ;Lixo=123;=5571900000000;SemIgual'),
+  [{ nome: 'Ana', whatsapp: '5571988887777' }, { nome: 'Beto', whatsapp: '5571987654321' }]
+);
+assert.deepEqual(lerContatos(''), []);
+assert.deepEqual(lerContatos(null), []);
 
 console.log('OK: agregação, privacidade da resposta pública, validação da contribuição, presença e recados.');

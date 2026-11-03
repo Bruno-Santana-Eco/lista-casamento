@@ -142,10 +142,21 @@ function montarCheckout(p) {
   };
 }
 
-/* Só aprova se a InfinitePay disser que foi pago E o valor for exatamente o esperado.
-   (amount é o valor dos presentes; paid_amount pode ter juros do parcelamento.) */
+/* Só aprova se a InfinitePay disser que foi pago E o valor cobrir o pedido. Aceita valor MAIOR
+   (no cartão, a taxa e os juros podem entrar no valor), nunca menor. A consulta já garante que
+   o pagamento é deste pedido (order_nsu + transaction_nsu + slug). */
 function pagamentoConfirmado(resp, esperadoCentavos) {
-  return !!resp && resp.success === true && resp.paid === true && Number(resp.amount) === esperadoCentavos && esperadoCentavos > 0;
+  return !!resp && resp.success === true && resp.paid === true && esperadoCentavos > 0 && Number(resp.amount) >= esperadoCentavos;
+}
+
+/* Contatos dos noivos, da propriedade CONTATOS_WHATSAPP no formato "Nome=5571999999999;Nome2=55..." */
+function lerContatos(texto) {
+  return String(texto || '').split(';')
+    .map(par => par.split('='))
+    .filter(par => par.length === 2)
+    .map(par => ({ nome: textoSimples(par[0], 30), whatsapp: String(par[1]).replace(/\D/g, '') }))
+    .filter(c => c.nome && /^55\d{10,11}$/.test(c.whatsapp))
+    .slice(0, 4);
 }
 
 /* Celular só com dígitos e sem o 55 do Brasil: 10 ou 11 dígitos (DDD + número). '' se inválido. */
@@ -224,6 +235,7 @@ function doGet(e) {
   try {
     if (acao === 'presentes') return json(presentesPublicos());
     if (acao === 'recados') return json({ ok: true, recados: recadosAprovados() });
+    if (acao === 'contato') return json({ ok: true, contatos: lerContatos(PropertiesService.getScriptProperties().getProperty('CONTATOS_WHATSAPP')) });
     return json({ ok: false, erro: 'acao_invalida' });
   } catch (err) {
     console.error(err);
@@ -536,6 +548,7 @@ function conferirPlanilha() {
   const props = PropertiesService.getScriptProperties();
   if (!props.getProperty('INFINITEPAY_HANDLE')) problemas.push('Falta a propriedade INFINITEPAY_HANDLE (sua InfiniteTag, sem o $)');
   if (!/^https:\/\//.test(props.getProperty('SITE_URL') || '')) problemas.push('Falta a propriedade SITE_URL (endereço https do site)');
+  if (!lerContatos(props.getProperty('CONTATOS_WHATSAPP')).length) problemas.push('Aviso: sem CONTATOS_WHATSAPP (o botão "Falar com os noivos" não vai mostrar contatos)');
   console.log(problemas.length ? 'PROBLEMAS:\n' + problemas.join('\n') : 'Planilha OK: abas, cabeçalhos e propriedades corretos.');
 }
 
@@ -565,6 +578,6 @@ function resumoPresencas() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     agregarPresentes, validarContribuicao, montarCheckout, pagamentoConfirmado, contaComoPendente, limparTexto, textoSimples, verdadeiro,
-    normalizarCelular, validarPresenca, planejarPresenca, prazoEncerrado, novoIdResposta, validarRecado, proximaLinhaLivre, CFG
+    normalizarCelular, validarPresenca, planejarPresenca, prazoEncerrado, novoIdResposta, validarRecado, proximaLinhaLivre, lerContatos, CFG
   };
 }

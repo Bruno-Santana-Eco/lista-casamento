@@ -17,6 +17,7 @@ Na engrenagem **Configurações do projeto → Propriedades do script → Adicio
 | `SITE_URL` | endereço `https://` do site. Até o site ser publicado, use `https://example.com/obrigado` | sim |
 | `EMAIL_AVISO` | e-mail que recebe aviso de pagamento aprovado | não |
 | `API_URL` | a URL `.../exec` do app da Web (só se o aviso da InfinitePay não chegar; veja “Problemas”) | não |
+| `CONTATOS_WHATSAPP` | WhatsApp dos noivos para o botão “Falar com os noivos” da ajuda, no formato `Nome=55DDDNUMERO;Nome2=55DDDNUMERO` (ex.: `Ana=5571988887777;Beto=5571987654321`). Fica só aqui, nunca no site nem no GitHub | não |
 | `PRESENCA_PRAZO` | último dia para confirmar presença, no formato `AAAA-MM-DD` (ex.: `2026-12-01`). Use a mesma data em `CONFIG.presenca.prazo` no site | não |
 
 O script cria sozinho a propriedade `WEBHOOK_TOKEN` no primeiro pagamento. **Não apague nem compartilhe**: ela impede que terceiros chamem o aviso de pagamento.

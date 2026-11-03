@@ -321,6 +321,7 @@ mural.addEventListener('error', e => {
 /* ---------- Carrinho (guardado nesta aba do navegador para sobreviver à ida e volta do pagamento) ---------- */
 const btnCarrinho = porId('carrinho-btn');
 const CHAVE_CARRINHO = 'lista-carrinho';
+const CHAVE_NOME = 'lista-nome';   // nome digitado no carrinho, para o agradecimento depois do pagamento
 
 function salvarCarrinho(){
   try { sessionStorage.setItem(CHAVE_CARRINHO, JSON.stringify(carrinho.map(({ it, ...linha }) => linha))); }
@@ -386,7 +387,8 @@ function passoAviso(){
 
 /* Fecha a janela e leva até a seção "Contribuição livre" (QR Code do Pix direto) */
 function irParaContribuicaoLivre(){
-  dlg.close();
+  if (dlgAjuda.open) dlgAjuda.close();
+  if (dlg.open) dlg.close();
   const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   porId('contribuicao-livre').scrollIntoView({ behavior: suave ? 'smooth' : 'auto' });
   porId('pix-livre-valor').focus({ preventScroll: true });
@@ -524,7 +526,8 @@ function passoCarrinho(){
       <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
       <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
-    <p class="nota">Você vai para a página segura da InfinitePay para pagar com Pix ou cartão. Os dados do cartão são digitados só lá: este site não tem acesso a eles.</p>
+    <p class="nota">Você vai para a página segura da InfinitePay, autorizada pelo Banco Central, e paga com Pix ou cartão como em qualquer compra pela internet (Mercado Livre, Shopee…). Você não cria conta: ela só pede telefone, e-mail e nome para enviar um código de segurança pelo WhatsApp e evitar fraudes. Este site não recebe esses dados nem os do cartão. <button class="link" type="button" data-ajuda="privacidade">Seus dados (LGPD)</button></p>
+    <p class="nota"><button class="link" type="button" data-ajuda="dados">Primeira vez? Veja como pagar, passo a passo</button></p>
     <p class="erro" id="erro" hidden></p>
     <div class="acoes">
       <button class="btn" type="button" id="pagar-carrinho">Pagar com Pix ou cartão</button>
@@ -553,6 +556,7 @@ function passoCarrinho(){
         nome, mostrar_nome: dados.mostrar, recado: dados.recado.trim(), site: $('#isca').value
       });
       if (!j.ok || !j.url) throw new Error(j.erro || 'sem_url');
+      try { sessionStorage.setItem(CHAVE_NOME, nome); } catch (e) { /* sem armazenamento: agradece sem o nome */ }
       abrirCheckout(j.url);
     } catch (e) {
       botao.disabled = false; botao.textContent = 'Pagar com Pix ou cartão';
@@ -587,19 +591,104 @@ async function verificarRetorno(){
   passoObrigado(status, recibo);
 }
 
+/* Fecha a janela e leva a uma seção da página (a lista, para ver o presente na barra, ou os recados) */
+function voltarPara(idSecao, campo){
+  dlg.close();
+  const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  porId(idSecao).scrollIntoView({ behavior: suave ? 'smooth' : 'auto' });
+  if (campo) campo.focus({ preventScroll: true });
+}
+
 function passoObrigado(status, recibo){
   const aprovado = status === 'aprovado';
-  mostrar(`<div class="obrigado">
-      <svg class="ilu selo-flor" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>
-      <h2>${aprovado ? 'Muito obrigado!' : 'Recebemos seu pedido'}</h2>
-      <p>${aprovado
-        ? 'Pagamento confirmado. Seu carinho agora faz parte da nossa casa nova.'
-        : 'Assim que a InfinitePay confirmar o pagamento, ele aparece na lista. Isso pode levar alguns minutos. Se você não chegou a pagar, seu carrinho continua salvo.'}</p>
-      ${recibo ? `<p><a class="link" href="${esc(recibo)}" target="_blank" rel="noopener noreferrer">Ver comprovante</a></p>` : ''}
-      <div class="acoes"><button class="btn" type="button" id="fim">Voltar à lista</button></div>
+  let nome = '';
+  try { nome = sessionStorage.getItem(CHAVE_NOME) || ''; if (aprovado) sessionStorage.removeItem(CHAVE_NOME); } catch (e) {}
+  const primeiroNome = nome.trim().split(/\s+/)[0] || '';
+  const casal = `${CONFIG.casal.nome1} & ${CONFIG.casal.nome2}`;
+  const linkRecibo = recibo ? ` <a class="link" href="${esc(recibo)}" target="_blank" rel="noopener noreferrer">Ver comprovante</a>` : '';
+  /* Próximos passos: aproveitar o momento para confirmar presença e deixar um recado */
+  const presencaAberta = !porId('form-presenca').hidden;
+  const proximos = `
+      <div class="agradecimento-proximos">
+        <p>${presencaAberta
+          ? '<strong>Já confirmou sua presença na celebração?</strong> Leva menos de um minuto. E, se quiser, deixe um recado para o nosso mural.'
+          : 'Se quiser, deixe um recado para o nosso mural.'}</p>
+        <div class="acoes">
+          ${presencaAberta ? '<button class="btn" type="button" id="ir-presenca">Confirmar presença</button>' : ''}
+          <button class="btn${presencaAberta ? ' sec' : ''}" type="button" id="ir-recados">Deixar um recado</button>
+        </div>
+        <p><button class="link" type="button" id="fim">Voltar para a lista de presentes</button></p>
+      </div>`;
+  const foto = `
+      <div class="agradecimento-foto" aria-hidden="true">
+        <img src="img/casal-hero.jpg" width="1000" height="1000" alt="">
+        <svg class="ilu agradecimento-ramo ramo-a" viewBox="0 -20 160 320"><use href="#ilu-ramo"/></svg>
+        <svg class="ilu agradecimento-ramo ramo-b" viewBox="0 -20 160 320"><use href="#ilu-ramo"/></svg>
+      </div>`;
+  mostrar(aprovado ? `
+    <div class="agradecimento">
+      ${foto}
+      <h2>${primeiroNome ? `Obrigado, ${esc(primeiroNome)}!` : 'Muito obrigado!'}</h2>
+      <p class="agradecimento-selo">Pagamento confirmado</p>
+      <p class="agradecimento-texto">Seu presente chegou com todo o carinho. Cada cantinho da nossa casa nova vai ter um pouco de você, e mal podemos esperar para celebrar juntos.</p>
+      <p class="agradecimento-assinatura">Com amor,<br>${esc(casal)}</p>
+      <p class="agradecimento-email">O comprovante do pagamento foi enviado para o e-mail que você informou na InfinitePay.${linkRecibo}</p>
+      ${proximos}
+    </div>` : `
+    <div class="agradecimento">
+      ${foto}
+      <h2>Quase lá!</h2>
+      <p class="agradecimento-texto">Recebemos o seu pedido. Assim que a InfinitePay confirmar o pagamento, o seu presente aparece na lista: no Pix leva poucos minutos e, no cartão, pode levar até o próximo dia útil.</p>
+      <p class="nota">Se você não chegou a pagar, seu carrinho continua salvo.${linkRecibo}</p>
+      <p class="agradecimento-assinatura">Obrigado pelo carinho!<br>${esc(casal)}</p>
+      ${proximos}
     </div>`);
-  $('#fim').onclick = () => dlg.close();
+  $('#fim').onclick = () => voltarPara('presentes');
+  $('#ir-recados').onclick = () => voltarPara('recados', porId('form-recado').elements.nome);
+  if (presencaAberta) $('#ir-presenca').onclick = () => voltarPara('presenca', porId('form-presenca').elements.nome);
 }
+
+/* ---------- Ajuda passo a passo (abre por cima de tudo, inclusive do carrinho) ---------- */
+const dlgAjuda = porId('dlg-ajuda');
+function abrirAjuda(secao){
+  if (!dlgAjuda.open) dlgAjuda.showModal();
+  const alvo = secao ? porId(`ajuda-${secao}`) : null;
+  if (alvo) alvo.scrollIntoView({ block:'start' });
+  else dlgAjuda.scrollTop = 0;
+  porId('ajuda-titulo').focus({ preventScroll: !!alvo });
+}
+document.addEventListener('click', e => {
+  const abrir = e.target.closest('[data-ajuda]');
+  if (abrir) return abrirAjuda(abrir.dataset.ajuda);
+  if (e.target.closest('[data-fechar-ajuda]')) return dlgAjuda.close();
+  if (e.target.closest('[data-ir-livre]')) return irParaContribuicaoLivre();
+  const contatos = e.target.closest('[data-contatos]');
+  if (contatos) mostrarContatos(contatos);
+});
+
+/* Contato dos noivos no WhatsApp. Os números ficam só nas Propriedades do script (CONTATOS_WHATSAPP):
+   nunca no código público do site. A API entrega só quando alguém pede ajuda. */
+let contatosNoivos = null;
+async function mostrarContatos(botao){
+  const caixa = botao.closest('[data-caixa-contatos]').querySelector('.contatos');
+  caixa.hidden = false;
+  caixa.textContent = 'Carregando…';
+  try {
+    if (!contatosNoivos){
+      if (!CONFIG.apiUrl) throw new Error('sem_api');
+      const j = await (await fetch(`${CONFIG.apiUrl}?acao=contato`)).json();
+      const validos = (j.ok && Array.isArray(j.contatos) ? j.contatos : []).filter(c => /^\d{12,13}$/.test(String(c.whatsapp)));
+      if (!validos.length) throw new Error('sem_contato');
+      contatosNoivos = validos;
+    }
+    const msg = encodeURIComponent('Oi! Estou no site da lista de presentes e preciso de ajuda para presentear.');
+    caixa.innerHTML = contatosNoivos.map(c =>
+      `<a class="btn sec" href="https://wa.me/${c.whatsapp}?text=${msg}" target="_blank" rel="noopener noreferrer">Falar com ${esc(c.nome)}</a>`).join('');
+  } catch (e) {
+    caixa.textContent = 'Não conseguimos carregar o contato agora. Se você tem o WhatsApp dos noivos, mande uma mensagem para eles.';
+  }
+}
+dlgAjuda.addEventListener('click', e => { if (e.target === dlgAjuda) dlgAjuda.close(); });
 
 /* ---------- Contribuição livre por Pix (não grava nada e não entra nas barras dos presentes) ---------- */
 porId('pix-livre-gerar').addEventListener('click', () => {

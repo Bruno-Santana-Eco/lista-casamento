@@ -256,6 +256,45 @@ body:has(.carrinho-flutuante:not([hidden])) .rodape-site{ padding-bottom:6rem; }
 .carrinho-dados{ margin:1.25rem 0 .5rem; padding-top:1rem; border-top:1px solid var(--line); }
 .carrinho-dados .radio{ margin:-.3rem 0 .9rem; font-size:.92rem; }
 
+/* ---------- Ajuda passo a passo ---------- */
+.ajuda-chamada{ text-align:center; margin:-1rem 0 2rem; }
+.btn-ajuda{
+  display:inline-flex; align-items:center; gap:.65rem; padding:.75rem 1.25rem; border-radius:999px;
+  border:1.5px solid var(--destaque-escuro); background:var(--surface); color:var(--destaque-escuro);
+  font-weight:700; font-size:1rem; line-height:1.3; cursor:pointer; text-align:left;
+}
+.btn-ajuda:hover{ background:var(--destaque-suave); }
+.btn-ajuda-icone{
+  flex:none; display:inline-grid; place-items:center; width:1.7rem; height:1.7rem; border-radius:50%;
+  background:var(--destaque-escuro); color:var(--on-escuro); font-family:var(--serif); font-size:1.15rem; font-weight:700;
+}
+.dlg-ajuda{ width:min(38rem, calc(100% - 1.5rem)); }
+.ajuda-corpo{ padding:1.6rem 1.75rem 2rem; font-size:1.12rem; line-height:1.6; }
+.ajuda-corpo h3{ font-family:var(--serif); font-weight:600; font-size:1.5rem; color:var(--destaque-escuro); margin:1.6rem 0 .4rem; scroll-margin-top:1rem; }
+.passos{ margin:0; padding-left:1.8rem; }
+.passos li{ margin:.55rem 0; padding-left:.3rem; }
+.passos li::marker{ font-weight:700; color:var(--destaque-escuro); }
+.ajuda-explica{ margin:.2rem 0 .4rem; }
+.ajuda-dica{ background:var(--destaque-suave); border-radius:12px; padding:.8rem 1rem; margin:.6rem 0; }
+.ajuda-corpo [id^="ajuda-"]{ scroll-margin-top:1rem; }
+.ajuda-atalhos{ display:flex; flex-wrap:wrap; gap:.3rem 1.1rem; margin:.4rem 0 .5rem; font-size:1rem; }
+/* Imagens das telas, do tamanho de um celular pequeno */
+.passo-img{
+  display:block; width:min(100%, 230px); height:auto; margin:.7rem 0 .3rem;
+  border:1px solid var(--line); border-radius:14px; box-shadow:0 4px 14px rgba(58,69,89,.12); background:var(--surface);
+}
+.passo-imgs{ display:flex; flex-wrap:wrap; gap:.6rem; align-items:flex-start; }
+.passo-imgs .passo-img{ width:min(100%, 200px); }
+/* "Ainda com dificuldade?": Contribuição livre ou WhatsApp dos noivos */
+.ajuda-socorro{ background:var(--destaque-suave); border-radius:14px; padding:1rem 1.1rem; margin:1.2rem 0 .5rem; }
+.ajuda-socorro p{ margin:0 0 .3rem; }
+.contatos{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; }
+.contatos .btn{ flex:1 1 10rem; }
+.ajuda-lista{ padding-left:1.3rem; }
+.ajuda-lista li{ margin:.5rem 0; }
+.livre-avisar{ margin-top:1.25rem; padding-top:1rem; border-top:1px dashed var(--line); }
+.rodape-site p + p{ margin-top:.6rem; }
+
 /* ---------- Contribuição livre ---------- */
 .pix-livre-resultado:not(:empty){ margin-top:1.5rem; }
 .pix-livre-resultado .cc{ width:100%; font:.78rem/1.4 ui-monospace,Menlo,Consolas,monospace; word-break:break-all; resize:none; padding:.5rem; border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); margin-bottom:.5rem; }
@@ -383,6 +422,32 @@ dialog p{ margin:.5rem 0; }
 
 /* Campo-isca contra robôs: fora da tela e fora da navegação por teclado */
 .isca{ position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
+
+/* Agradecimento depois do pagamento */
+.agradecimento{ text-align:center; padding:.25rem 0 .25rem; }
+.agradecimento-foto{ position:relative; width:150px; height:150px; margin:.75rem auto 1.25rem; }
+.agradecimento-foto img{
+  width:100%; height:100%; border-radius:50%; object-fit:cover; background:var(--destaque-suave);
+  border:5px solid var(--surface); box-shadow:0 0 0 7px var(--mancha), 0 12px 26px rgba(58,69,89,.18);
+}
+.agradecimento-ramo{ position:absolute; width:46px; pointer-events:none; }
+.agradecimento-ramo.ramo-a{ left:-34px; bottom:-6px; transform:rotate(-28deg); }
+.agradecimento-ramo.ramo-b{ right:-34px; top:-8px; transform:rotate(32deg) scaleX(-1); }
+dialog .agradecimento h2{ font-size:clamp(2rem, 7vw, 2.5rem); padding-right:0; margin:0 0 .35rem; }
+.agradecimento-selo{
+  display:inline-block; margin:.1rem 0 .9rem !important; padding:.25rem .85rem; border-radius:999px;
+  background:var(--sucesso-bg); color:var(--sucesso-ink); font-weight:700; font-size:.85rem;
+}
+.agradecimento-texto{ font-size:1.08rem; text-wrap:pretty; }
+.agradecimento-assinatura{ font-family:var(--serif); font-style:italic; font-size:1.4rem; line-height:1.3; color:var(--destaque-escuro); margin:1rem 0 !important; }
+.agradecimento-email{ background:var(--destaque-suave); border-radius:12px; padding:.75rem 1rem; font-size:.95rem; }
+.agradecimento-proximos{ margin-top:1.25rem; padding-top:1rem; border-top:1px dashed var(--line); }
+.agradecimento-proximos p{ margin:.3rem 0; }
+.agradecimento-proximos .acoes{ margin-top:.9rem; }
+@media (prefers-reduced-motion: no-preference){
+  .agradecimento-foto{ animation:surgir .5s ease-out; }
+  @keyframes surgir{ from{ opacity:0; transform:scale(.9); } }
+}
 
 .obrigado{ text-align:center; padding:1rem 0 .5rem; }
 .obrigado h2{ padding-right:0; }

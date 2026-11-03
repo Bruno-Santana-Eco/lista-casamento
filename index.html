@@ -172,6 +172,9 @@
       Chá de casa nova
     </p>
     <p class="intro" id="intro"></p>
+    <p class="ajuda-chamada">
+      <button class="btn-ajuda" type="button" data-ajuda><span class="btn-ajuda-icone" aria-hidden="true">?</span> Primeira vez? Veja como presentear, passo a passo</button>
+    </p>
     <div class="barra-lista">
       <div class="filtros" role="group" aria-label="Filtrar presentes">
         <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
@@ -201,9 +204,15 @@
         <span class="campo-valor">R$ <input type="number" id="pix-livre-valor" min="1" step="0.01" inputmode="decimal" placeholder="0,00"></span>
       </label>
       <p class="nota">Se deixar em branco, você digita o valor no app do banco. Esta contribuição vai direto para nós e não aparece nas barras dos presentes.</p>
+      <p class="nota"><button class="link" type="button" data-ajuda="banco">Como pagar com Pix copia e cola</button></p>
       <p class="erro" id="pix-livre-erro" hidden></p>
       <button class="btn" type="button" id="pix-livre-gerar">Gerar QR Code do Pix</button>
       <div class="pix-livre-resultado" id="pix-livre-resultado" aria-live="polite"></div>
+      <div class="livre-avisar" data-caixa-contatos>
+        <p class="nota">Fez o Pix para um presente específico? Avise os noivos, que eles registram na lista.</p>
+        <button class="btn sec" type="button" data-contatos>Avisar os noivos no WhatsApp</button>
+        <div class="contatos" aria-live="polite" hidden></div>
+      </div>
     </div>
   </div>
 </section>
@@ -258,12 +267,129 @@
 <footer class="rodape-site">
   <svg class="ilu rodape-flor" viewBox="-46 -46 92 92" aria-hidden="true"><use href="#ilu-flor"/></svg>
   <p>Pagamentos via Pix e InfinitePay. Este site não recebe nem guarda dados de cartão.</p>
+  <p><button class="link" type="button" data-ajuda="privacidade">Seus dados e privacidade (LGPD)</button> · <button class="link" type="button" data-ajuda>Ajuda passo a passo</button></p>
 </footer>
 
 <button class="carrinho-flutuante" id="carrinho-btn" type="button" hidden>
   <span class="carrinho-rotulo">Ver carrinho</span>
   <span id="carrinho-resumo"></span>
 </button>
+
+<!-- Ajuda passo a passo, com imagens: letra maior e linguagem simples, pensada para quem tem pouca familiaridade com Pix -->
+<dialog id="dlg-ajuda" class="dlg-ajuda" aria-labelledby="ajuda-titulo">
+  <div class="faixa-mini" aria-hidden="true"></div>
+  <button class="fechar" type="button" data-fechar-ajuda aria-label="Fechar">×</button>
+  <div class="ajuda-corpo">
+    <h2 id="ajuda-titulo" tabindex="-1">Como presentear, passo a passo</h2>
+    <p>Sem pressa: cada passo tem a imagem da tela. Se travar, no fim de cada parte tem como pedir ajuda.</p>
+    <nav class="ajuda-atalhos" aria-label="Partes da ajuda">
+      <button class="link" type="button" data-ajuda="escolher">Escolher o presente</button>
+      <button class="link" type="button" data-ajuda="pix">Pagar com Pix</button>
+      <button class="link" type="button" data-ajuda="cartao">Pagar com cartão</button>
+      <button class="link" type="button" data-ajuda="privacidade">Seus dados</button>
+    </nav>
+
+    <h3 id="ajuda-escolher">Escolha o presente</h3>
+    <ol class="passos">
+      <li>Na <strong>Lista de presentes</strong>, toque em <strong>Contribuir</strong> (nas vaquinhas) ou em <strong>Presentear</strong>.
+        <img class="passo-img" src="img/ajuda/passo-01.jpg" width="480" height="938" loading="lazy" alt="Card da TV na lista, com o botão Contribuir destacado"></li>
+      <li>Nas vaquinhas, escolha quantas <strong>cotas</strong> quer dar e toque em <strong>Adicionar ao carrinho</strong>.
+        <img class="passo-img" src="img/ajuda/passo-02.jpg" width="480" height="938" loading="lazy" alt="Janela Escolha o valor com cotas de R$ 100,00 e o botão Adicionar ao carrinho"></li>
+      <li>Se preferir, marque <strong>Outro valor</strong> e digite quanto quer dar. Embaixo aparece o botão <strong>Ver carrinho</strong>.
+        <img class="passo-img" src="img/ajuda/passo-03.jpg" width="480" height="938" loading="lazy" alt="Opção Outro valor preenchida com R$ 50 e o botão Ver carrinho embaixo"></li>
+      <li>No carrinho, escreva seu nome (para sabermos a quem agradecer), deixe um recado se quiser e toque em <strong>Pagar com Pix ou cartão</strong>.
+        <img class="passo-img" src="img/ajuda/passo-04.jpg" width="480" height="938" loading="lazy" alt="Carrinho com total de R$ 50,00, campos de nome e recado e o botão Pagar com Pix ou cartão"></li>
+    </ol>
+
+    <h3 id="ajuda-dados">Seus dados na InfinitePay</h3>
+    <ol class="passos" start="5">
+      <li>Abre a página segura da <strong>InfinitePay</strong> (o endereço começa com <em>checkout.infinitepay.io</em>). Ela pede <strong>telefone, e-mail e nome</strong>.
+        <p class="ajuda-dica"><strong>O que é a InfinitePay? É seguro?</strong> A InfinitePay funciona como um <strong>banco online</strong>: é autorizada pelo <strong>Banco Central</strong> a atuar como instituição de pagamento e segue todas as leis e regras do Banco Central. A compra é feita igual a qualquer compra pela internet, como no <strong>Mercado Livre</strong> ou na <strong>Shopee</strong>: você escolhe Pix ou cartão e paga na página dela. <a class="link" href="https://www.infinitepay.io/" target="_blank" rel="noopener noreferrer">Veja no site da InfinitePay</a> (em “A InfinitePay é confiável?”, nas perguntas frequentes no fim da página).</p>
+        <p class="ajuda-dica"><strong>Por que esses dados?</strong> São para a sua segurança: a InfinitePay envia um código pelo WhatsApp para confirmar que é você mesmo (autenticação de dois fatores) e evitar fraudes e golpes. <strong>Você não cria conta na InfinitePay</strong>, e a única mensagem que ela manda no seu WhatsApp é esse código. Este site não recebe nem guarda esses dados. <button class="link" type="button" data-ajuda="privacidade">Saiba mais</button></p>
+        <img class="passo-img" src="img/ajuda/passo-05.jpg" width="480" height="938" loading="lazy" alt="Página de Contato da InfinitePay com os campos telefone, e-mail e nome"></li>
+      <li>Preencha e toque em <strong>Continuar</strong>. Depois escolha como pagar: <button class="link" type="button" data-ajuda="pix">Pix</button> ou <button class="link" type="button" data-ajuda="cartao">cartão</button>.
+        <img class="passo-img" src="img/ajuda/passo-06.jpg" width="480" height="938" loading="lazy" alt="Página de Contato preenchida e o botão Continuar"></li>
+    </ol>
+
+    <h3 id="ajuda-pix">Pagar com Pix</h3>
+    <ol class="passos" start="7">
+      <li>Toque em <strong>Pix</strong>.
+        <img class="passo-img" src="img/ajuda/pix-07.jpg" width="480" height="938" loading="lazy" alt="Página de Pagamento com as opções Crédito e Pix, com uma seta apontando para Pix"></li>
+      <li>Toque em <strong>Fazer Pedido</strong>.
+        <img class="passo-img" src="img/ajuda/pix-08.jpg" width="480" height="938" loading="lazy" alt="Tela Pagamento via Pix com o botão Fazer Pedido"></li>
+      <li>A InfinitePay manda um <strong>código de 6 números para o seu WhatsApp</strong>. Abra o WhatsApp e procure a conversa <strong>InfinitePay – Segurança</strong>. Esse código é só seu: não passe para ninguém.
+        <span class="passo-imgs">
+          <img class="passo-img" src="img/ajuda/pix-09.jpg" width="480" height="938" loading="lazy" alt="Tela Digite o código enviado para o WhatsApp, com seis campos vazios">
+          <img class="passo-img" src="img/ajuda/pix-09-conversas.jpg" width="480" height="196" loading="lazy" alt="Lista de conversas do WhatsApp com a conversa InfinitePay - Segurança">
+          <img class="passo-img" src="img/ajuda/pix-09-whatsapp.jpg" width="480" height="990" loading="lazy" alt="Conversa InfinitePay - Segurança com a mensagem Seu código de verificação é, com o código escondido">
+        </span></li>
+      <li>Volte ao navegador, <strong>digite o código</strong> e toque em <strong>Continuar</strong>.
+        <img class="passo-img" src="img/ajuda/pix-10.jpg" width="480" height="938" loading="lazy" alt="Tela do código com os números digitados e o botão Continuar"></li>
+      <li>Toque em <strong>Copiar o código Pix</strong>.
+        <img class="passo-img" src="img/ajuda/pix-11.jpg" width="480" height="938" loading="lazy" alt="Tela Pagamento com o código Pix e o botão Copiar o código Pix"></li>
+      <li id="ajuda-banco"><strong>Abra o aplicativo do seu banco</strong> e procure a <strong>área do Pix</strong>.
+        <img class="passo-img" src="img/ajuda/pix-12.jpg" width="480" height="938" loading="lazy" alt="Tela inicial de um aplicativo de banco com o botão Pix destacado"></li>
+      <li>Escolha <strong>Pix Copia e Cola</strong> ou toque em <strong>Colar</strong> (o nome muda um pouco de banco para banco).
+        <img class="passo-img" src="img/ajuda/pix-13.jpg" width="480" height="467" loading="lazy" alt="Tela Pagar com Pix com a opção Colar e o campo Chave, Copia e Cola destacados"></li>
+      <li>O código aparece colado. Toque em <strong>Continuar</strong>.
+        <img class="passo-img" src="img/ajuda/pix-14.jpg" width="480" height="938" loading="lazy" alt="Código Pix colado no aplicativo do banco e o botão Continuar"></li>
+      <li><strong>Confira o valor</strong> e toque em <strong>Pagar</strong>.
+        <img class="passo-img" src="img/ajuda/pix-15.jpg" width="480" height="938" loading="lazy" alt="Tela de revisão do banco com o valor de R$ 50,00 e o botão Pagar"></li>
+      <li>Pronto! O banco mostra o comprovante. Volte ao navegador: o site mostra a mensagem de agradecimento com <strong>“Pagamento confirmado”</strong>.
+        <img class="passo-img" src="img/ajuda/pix-16.jpg" width="480" height="938" loading="lazy" alt="Comprovante do banco com Pix enviado de R$ 50,00"></li>
+    </ol>
+    <div class="ajuda-socorro" data-caixa-contatos>
+      <p><strong>Ainda com dificuldade?</strong> Faça um Pix direto pela <strong>Contribuição livre</strong> e avise os noivos, que eles registram o seu presente na lista. Se continuar difícil, peça ajuda a eles.</p>
+      <div class="acoes">
+        <button class="btn" type="button" data-ir-livre>Ir para a Contribuição livre</button>
+        <button class="btn sec" type="button" data-contatos>Falar com os noivos no WhatsApp</button>
+      </div>
+      <div class="contatos" aria-live="polite" hidden></div>
+    </div>
+
+    <h3 id="ajuda-cartao">Pagar com cartão de crédito</h3>
+    <ol class="passos" start="7">
+      <li>Toque em <strong>Crédito</strong>.
+        <img class="passo-img" src="img/ajuda/cartao-07.jpg" width="480" height="938" loading="lazy" alt="Página de Pagamento com uma seta apontando para Crédito"></li>
+      <li>Escolha em quantas <strong>parcelas</strong> e preencha os dados do cartão.
+        <p class="ajuda-dica"><strong>Por que o valor ficou um pouco maior?</strong> É a <strong>taxa do cartão</strong>, cobrada pela InfinitePay (no exemplo, R$ 1,00 virou R$ 1,05). Parcelando, entram também os juros. No Pix não há taxa.</p>
+        <img class="passo-img" src="img/ajuda/cartao-08.jpg" width="480" height="938" loading="lazy" alt="Formulário do cartão com parcelas, número do cartão, validade, CVV, nome e CPF"></li>
+      <li>Confira as parcelas e preencha todos os dados.
+        <img class="passo-img" src="img/ajuda/cartao-09.jpg" width="480" height="938" loading="lazy" alt="Formulário do cartão com 1x de R$ 1,05 selecionado"></li>
+      <li>Preencha o endereço e toque em <strong>Fazer Pedido</strong>.
+        <img class="passo-img" src="img/ajuda/cartao-10.jpg" width="480" height="938" loading="lazy" alt="Campos de endereço e o botão Fazer Pedido"></li>
+      <li>A InfinitePay manda um <strong>código de 6 números para o seu WhatsApp</strong>. Abra o WhatsApp e procure a conversa <strong>InfinitePay – Segurança</strong>. Esse código é só seu: não passe para ninguém.
+        <span class="passo-imgs">
+          <img class="passo-img" src="img/ajuda/pix-09.jpg" width="480" height="938" loading="lazy" alt="Tela Digite o código enviado para o WhatsApp, com seis campos vazios">
+          <img class="passo-img" src="img/ajuda/pix-09-conversas.jpg" width="480" height="196" loading="lazy" alt="Lista de conversas do WhatsApp com a conversa InfinitePay - Segurança">
+          <img class="passo-img" src="img/ajuda/pix-09-whatsapp.jpg" width="480" height="990" loading="lazy" alt="Conversa InfinitePay - Segurança com a mensagem Seu código de verificação é, com o código escondido">
+        </span></li>
+      <li>Volte ao navegador, <strong>digite o código</strong> e toque em <strong>Continuar</strong>.
+        <img class="passo-img" src="img/ajuda/pix-10.jpg" width="480" height="938" loading="lazy" alt="Tela do código com os números digitados e o botão Continuar"></li>
+      <li>Pronto! O site mostra a mensagem de agradecimento com <strong>“Pagamento confirmado”</strong>.</li>
+    </ol>
+    <div class="ajuda-socorro" data-caixa-contatos>
+      <p><strong>Ainda com dificuldade?</strong> Faça um Pix direto pela <strong>Contribuição livre</strong> e avise os noivos, que eles registram o seu presente na lista. Se continuar difícil, peça ajuda a eles.</p>
+      <div class="acoes">
+        <button class="btn" type="button" data-ir-livre>Ir para a Contribuição livre</button>
+        <button class="btn sec" type="button" data-contatos>Falar com os noivos no WhatsApp</button>
+      </div>
+      <div class="contatos" aria-live="polite" hidden></div>
+    </div>
+
+    <h3 id="ajuda-privacidade">Seus dados e privacidade (LGPD)</h3>
+    <p>Respeitamos a Lei Geral de Proteção de Dados (Lei 13.709/2018).</p>
+    <ul class="ajuda-lista">
+      <li><strong>No pagamento:</strong> telefone, e-mail e nome (e, no cartão, CPF e endereço) são pedidos e guardados pela <strong>InfinitePay</strong>, instituição de pagamento autorizada pelo Banco Central, para a segurança do pagamento e para evitar fraudes e golpes. Este site <strong>não recebe</strong> esses dados nem os dados do cartão.</li>
+      <li><strong>Aqui no site:</strong> guardamos só o que você escrever: nome e recado (no presente) e nome, celular e número de pessoas (na confirmação de presença). Servem apenas para agradecer e organizar a festa.</li>
+      <li><strong>Quem vê:</strong> só os noivos, e <strong>somente</strong> o que você escreveu aqui: seu nome, seu recado, o presente escolhido e, na confirmação de presença, seu celular e o número de pessoas. Na InfinitePay, eles veem só o dinheiro que entrou, sem nenhum dado seu. Os noivos <strong>nunca veem</strong> os dados do seu cartão (número, validade e código de segurança) nem os da sua conta no banco (senha, saldo, extrato).</li>
+      <li><strong>Para os outros convidados:</strong> seu nome só aparece se você marcar “Mostrar meu nome”, e os recados, só depois de aprovados. Os valores nunca aparecem.</li>
+      <li><strong>Não vendemos nem compartilhamos</strong> seus dados com ninguém. Quer corrigir ou apagar algo? É só falar com os noivos.</li>
+    </ul>
+
+    <div class="acoes"><button class="btn" type="button" data-fechar-ajuda>Entendi</button></div>
+  </div>
+</dialog>
 
 <dialog id="dlg" aria-labelledby="dlg-titulo">
   <div class="faixa-mini" aria-hidden="true"></div>
