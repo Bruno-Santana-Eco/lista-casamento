@@ -288,10 +288,11 @@ body:has(.carrinho-flutuante:not([hidden])) .rodape-site{ padding-bottom:6rem; }
 .carrinho-total strong{ font-family:var(--serif); font-size:1.9rem; }
 .carrinho-dados{ margin:1.25rem 0 .5rem; padding-top:1rem; border-top:1px solid var(--line); }
 .carrinho-dados .radio{ margin:-.3rem 0 .9rem; font-size:.92rem; }
-/* Pix direto (mais simples): atalho no topo do carrinho e terceira opção embaixo, em azul para não confundir com o Pix pelo site */
+/* Pix direto (mais simples): terceira opção do carrinho, em azul para não confundir com o Pix pelo site */
 .atalho-direto{ background:var(--ajuda-suave); border:1.5px solid var(--ajuda); border-radius:14px; padding:.85rem 1rem 1rem; margin:0 0 .5rem; }
 .atalho-direto p{ margin:0 0 .65rem; color:var(--ajuda-escuro); }
 .atalho-direto .btn{ width:100%; }
+.carrinho-terceira{ margin-top:.9rem; }
 .btn-direto{ background:var(--ajuda); border-color:var(--ajuda); }
 
 /* ---------- Ajuda passo a passo ---------- */

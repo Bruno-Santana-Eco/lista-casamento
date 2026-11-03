@@ -527,10 +527,6 @@ function passoCarrinho(){
   }
   const dados = st.dados || (st.dados = { nome:'', mostrar:false, recado:'' });
   mostrar(`<h2>Seu carrinho</h2>
-    <div class="atalho-direto">
-      <p>Achou difícil? Faça um <strong>Pix direto</strong> para os noivos, sem cadastro e sem código.</p>
-      <button class="btn btn-direto" type="button" data-pix-direto>Pix direto de ${fmt(totalCarrinho(carrinho))}</button>
-    </div>
     <ul class="carrinho-lista">
       ${carrinho.map(l => `
         <li>
@@ -552,9 +548,11 @@ function passoCarrinho(){
     <div class="acoes">
       <button class="btn" type="button" id="pagar-carrinho">Pagar com Pix ou cartão</button>
       <button class="btn sec" type="button" id="continuar">Continuar contribuindo</button>
-      <button class="btn btn-direto" type="button" data-pix-direto>Pix direto para os noivos</button>
     </div>
-    <p class="nota"><strong>Pix direto:</strong> você vai para a Contribuição livre com o valor do carrinho já preenchido e paga pelo aplicativo do seu banco, com o QR Code ou o Pix copia e cola. Esse Pix vai direto para os noivos, sem passar pelo site: depois, avise-os para registrarem o seu presente na lista.</p>`);
+    <div class="atalho-direto carrinho-terceira">
+      <p>Achou difícil? Faça um <strong>Pix direto</strong> para os noivos, sem cadastro e sem código.</p>
+      <button class="btn btn-direto" type="button" data-pix-direto>Pix direto de ${fmt(totalCarrinho(carrinho))}</button>
+    </div>`);
 
   const guardarDados = () => { dados.nome = $('#nome').value; dados.mostrar = $('#mostrar').checked; dados.recado = $('#msg').value; };
   ['#nome', '#mostrar', '#msg'].forEach(s => $(s).addEventListener('input', guardarDados));
