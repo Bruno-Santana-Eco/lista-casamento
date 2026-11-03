@@ -167,7 +167,7 @@ h1 .e-comercial{ display:block; font-style:italic; font-weight:400; font-size:cl
 
 /* O Casal */
 .casal-fotos{ display:flex; flex-wrap:wrap; justify-content:center; gap:2rem 3.5rem; margin:2rem 0 2rem; }
-.blob-fig{ margin:0; text-align:center; width:min(100%, 17rem); }
+.blob-fig{ margin:0; text-align:center; width:min(100%, 20rem); }
 .foto-blob{ width:100%; height:auto; aspect-ratio:1; object-fit:cover; display:block; background:var(--destaque-suave); }
 .blob-a .foto-blob, .blob-a .neutro{ border-radius:58% 42% 55% 45% / 48% 58% 42% 52%; }
 .blob-b .foto-blob, .blob-b .neutro{ border-radius:44% 56% 40% 60% / 56% 44% 58% 42%; }
