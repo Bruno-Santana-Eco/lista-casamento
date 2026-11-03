@@ -23,12 +23,12 @@ const CONFIG = {
 
   intro: "A presença de vocês é o nosso maior presente. Se quiserem nos presentear, cada item abaixo vira uma contribuição: escolham o valor que couber no coração e no bolso.",
 
-  // A seção só aparece quando o endereço estiver preenchido
+  // Local da celebração, no fim da página. A seção só aparece quando o endereço estiver preenchido
   recepcao: {
-    data: "13 de dezembro de 2026",
+    data: "Domingo, 13 de dezembro de 2026",
     horario: "",
     local: "",
-    endereco: ""
+    endereco: "Alameda Praia do Flamengo, Stella Maris, Salvador - BA"
   },
 
   // Confirmação de presença: prazo no formato AAAA-MM-DD (vazio = sem prazo).

@@ -67,15 +67,24 @@ if (rec && rec.endereco){
   porId('menu-recepcao').hidden = false;
 }
 
-/* ---------- Menu (no celular vira um botão) ---------- */
-const menuBtn = porId('menu-btn'), menuNav = porId('menu');
-function menu(aberto){
-  menuNav.classList.toggle('aberto', aberto);
-  menuBtn.setAttribute('aria-expanded', String(aberto));
+/* ---------- Menu (no celular vira uma faixa de atalhos que rola para o lado) ---------- */
+const menuNav = porId('menu');
+const linksMenu = [...menuNav.querySelectorAll('a')];
+const semAnimacao = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Marca o atalho da seção que está no meio da tela e, na faixa do celular, rola até ele.
+// Os atalhos estão na mesma ordem das seções, então vale o último cujo topo já passou do meio.
+function marcarSecaoAtual(){
+  const ativo = linksMenu.filter(a => {
+    const s = document.querySelector(a.hash);
+    return s && !s.hidden && s.getBoundingClientRect().top <= innerHeight * .45;
+  }).pop();
+  if (!ativo || ativo.hasAttribute('aria-current')) return;
+  linksMenu.forEach(a => a === ativo ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current'));
+  if (menuNav.scrollWidth > menuNav.clientWidth)
+    menuNav.scrollTo({ left: ativo.offsetLeft - (menuNav.clientWidth - ativo.offsetWidth) / 2, behavior: semAnimacao ? 'auto' : 'smooth' });
 }
-menuBtn.addEventListener('click', () => menu(menuBtn.getAttribute('aria-expanded') !== 'true'));
-menuNav.addEventListener('click', e => { if (e.target.closest('a')) menu(false); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuNav.classList.contains('aberto')){ menu(false); menuBtn.focus(); } });
+addEventListener('scroll', marcarSecaoAtual, { passive:true });
+marcarSecaoAtual();
 
 /* ---------- Contagem regressiva ---------- */
 const contagemFesta = CONFIG.contagemPara !== 'casamento';
@@ -194,7 +203,7 @@ formRecado.addEventListener('submit', async e => {
   if (nome.length < 2){ avisoForm('aviso-recado', 'Escreva seu nome.', 'erro'); return f.nome.focus(); }
   if (mensagem.length < 2){ avisoForm('aviso-recado', 'Escreva sua mensagem.', 'erro'); return f.mensagem.focus(); }
   const ok = await enviarForm(formRecado, 'aviso-recado', { acao:'recado', nome, mensagem },
-    'Recado enviado! Ele aparece aqui depois que os noivos aprovarem.');
+    'Recado enviado! Assim que os noivos lerem e conferirem, ele aparece aqui no mural.');
   if (ok) f.mensagem.value = '';
 });
 
@@ -301,8 +310,11 @@ document.querySelector('.filtros').addEventListener('click', e => {
 
 porId('ordem').addEventListener('change', e => { ordem = e.target.value; renderMural(); });
 
+// O botão do card e a foto do presente abrem a mesma janela de contribuição
 mural.addEventListener('click', e => {
-  const b = e.target.closest('button[data-id]'); if (!b) return;
+  const foto = e.target.closest('.item-foto');
+  const b = e.target.closest('button[data-id]') || (foto && foto.closest('.item').querySelector('button[data-id]'));
+  if (!b) return;
   abrir(itens.find(i => i.id === b.dataset.id));
 });
 
@@ -333,13 +345,17 @@ function restaurarCarrinho(){
     carrinho = salvo.map(l => ({ ...l, it: itens.find(i => i.id === l.id) })).filter(l => l.it);
   } catch (e) { carrinho = []; }
 }
+const btnCarrinhoTopo = porId('carrinho-topo');
 function atualizarCarrinho(){
   const n = carrinho.length;
-  btnCarrinho.hidden = n === 0;
-  porId('carrinho-resumo').textContent = `${n} ${n === 1 ? 'item' : 'itens'} · ${fmt(totalCarrinho(carrinho))}`;
+  const itensTexto = `${n} ${n === 1 ? 'item' : 'itens'}`;
+  btnCarrinho.hidden = btnCarrinhoTopo.hidden = n === 0;
+  porId('carrinho-resumo').textContent = `${itensTexto} · ${fmt(totalCarrinho(carrinho))}`;
+  porId('carrinho-qtd').textContent = n;
+  btnCarrinhoTopo.setAttribute('aria-label', `Ver carrinho: ${itensTexto}, total de ${fmt(totalCarrinho(carrinho))}`);
   salvarCarrinho();
 }
-btnCarrinho.addEventListener('click', () => { dlg.showModal(); passoCarrinho(); });
+[btnCarrinho, btnCarrinhoTopo].forEach(b => b.addEventListener('click', () => { dlg.showModal(); passoCarrinho(); }));
 
 /* ---------- Fluxo de contribuição ---------- */
 const dlg = porId('dlg');
@@ -526,8 +542,8 @@ function passoCarrinho(){
       <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
       <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
-    <p class="nota">Você vai para a página segura da InfinitePay, autorizada pelo Banco Central, e paga com Pix ou cartão como em qualquer compra pela internet (Mercado Livre, Shopee…). Você não cria conta: ela só pede telefone, e-mail e nome para enviar um código de segurança pelo WhatsApp e evitar fraudes. Este site não recebe esses dados nem os do cartão. <button class="link" type="button" data-ajuda="privacidade">Seus dados (LGPD)</button></p>
-    <p class="nota"><button class="link" type="button" data-ajuda="dados">Primeira vez? Veja como pagar, passo a passo</button></p>
+    <p class="nota">Você vai para a página segura da InfinitePay, autorizada pelo Banco Central, e paga com Pix ou cartão como em qualquer compra pela internet (ex.: Mercado Livre, Shopee…). Você não cria conta: ela só pede telefone, e-mail e nome para enviar um código de segurança pelo WhatsApp e evitar fraudes. Este site não recebe esses dados nem os do cartão. <button class="link" type="button" data-ajuda="privacidade">Seus dados (LGPD)</button></p>
+    <p class="ajuda-chamada no-carrinho"><button class="btn-ajuda" type="button" data-ajuda="dados"><span class="btn-ajuda-icone" aria-hidden="true">?</span> Primeira vez? Veja como pagar, passo a passo</button></p>
     <p class="erro" id="erro" hidden></p>
     <div class="acoes">
       <button class="btn" type="button" id="pagar-carrinho">Pagar com Pix ou cartão</button>
@@ -652,25 +668,33 @@ function passoObrigado(status, recibo){
 const dlgAjuda = porId('dlg-ajuda');
 function abrirAjuda(secao){
   if (!dlgAjuda.open) dlgAjuda.showModal();
+  // No topo da ajuda, o contato dos noivos já aparece pronto, sem precisar de mais um toque
+  dlgAjuda.querySelectorAll('[data-contatos-auto]').forEach(mostrarContatos);
   const alvo = secao ? porId(`ajuda-${secao}`) : null;
   if (alvo) alvo.scrollIntoView({ block:'start' });
   else dlgAjuda.scrollTop = 0;
   porId('ajuda-titulo').focus({ preventScroll: !!alvo });
+  atualizarBarraFacil();
 }
+// A barra "Achou difícil?" aparece quando a caixa do topo sai da tela, para não repetir o mesmo botão
+const caixaFacil = porId('ajuda-facil'), barraFacil = porId('ajuda-barra-facil');
+function atualizarBarraFacil(){
+  barraFacil.hidden = caixaFacil.getBoundingClientRect().bottom > dlgAjuda.getBoundingClientRect().top;
+}
+dlgAjuda.addEventListener('scroll', atualizarBarraFacil, { passive:true });
 document.addEventListener('click', e => {
   const abrir = e.target.closest('[data-ajuda]');
   if (abrir) return abrirAjuda(abrir.dataset.ajuda);
   if (e.target.closest('[data-fechar-ajuda]')) return dlgAjuda.close();
   if (e.target.closest('[data-ir-livre]')) return irParaContribuicaoLivre();
   const contatos = e.target.closest('[data-contatos]');
-  if (contatos) mostrarContatos(contatos);
+  if (contatos) mostrarContatos(contatos.closest('[data-caixa-contatos]').querySelector('.contatos'));
 });
 
 /* Contato dos noivos no WhatsApp. Os números ficam só nas Propriedades do script (CONTATOS_WHATSAPP):
-   nunca no código público do site. A API entrega só quando alguém pede ajuda. */
+   nunca no código público do site. A API entrega só quando alguém abre a ajuda ou pede contato. */
 let contatosNoivos = null;
-async function mostrarContatos(botao){
-  const caixa = botao.closest('[data-caixa-contatos]').querySelector('.contatos');
+async function mostrarContatos(caixa){
   caixa.hidden = false;
   caixa.textContent = 'Carregando…';
   try {
@@ -681,13 +705,22 @@ async function mostrarContatos(botao){
       if (!validos.length) throw new Error('sem_contato');
       contatosNoivos = validos;
     }
-    const msg = encodeURIComponent('Oi! Estou no site da lista de presentes e preciso de ajuda para presentear.');
+    // Texto do botão e mensagem pronta podem vir da caixa (data-rotulo, data-mensagem)
+    const rotulo = caixa.dataset.rotulo || 'Falar com';
+    const msg = encodeURIComponent(caixa.dataset.mensagem || 'Oi! Estou no site da lista de presentes e preciso de ajuda para presentear.');
     caixa.innerHTML = contatosNoivos.map(c =>
-      `<a class="btn sec" href="https://wa.me/${c.whatsapp}?text=${msg}" target="_blank" rel="noopener noreferrer">Falar com ${esc(c.nome)}</a>`).join('');
+      `<a class="btn sec" href="https://wa.me/${c.whatsapp}?text=${msg}" target="_blank" rel="noopener noreferrer">${esc(rotulo)} ${esc(c.nome)}</a>`).join('');
   } catch (e) {
     caixa.textContent = 'Não conseguimos carregar o contato agora. Se você tem o WhatsApp dos noivos, mande uma mensagem para eles.';
   }
 }
+// Caixas da página que mostram o contato sozinhas quando chegam perto da tela (uma consulta só, depois fica guardado)
+const vigiaContatos = new IntersectionObserver(entradas => entradas.forEach(en => {
+  if (!en.isIntersecting) return;
+  vigiaContatos.unobserve(en.target);
+  mostrarContatos(en.target);
+}), { rootMargin: '300px 0px' });
+document.querySelectorAll('[data-contatos-ao-ver]').forEach(c => vigiaContatos.observe(c));
 dlgAjuda.addEventListener('click', e => { if (e.target === dlgAjuda) dlgAjuda.close(); });
 
 /* ---------- Contribuição livre por Pix (não grava nada e não entra nas barras dos presentes) ---------- */

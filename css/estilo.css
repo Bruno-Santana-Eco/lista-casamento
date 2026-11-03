@@ -6,6 +6,7 @@
   --destaque-escuro:#A8491F;   /* texto e botões sobre claro (contraste AA) */
   --on-destaque:#3A4559; --on-escuro:#FFFFFF;
   --destaque-suave:#FCE6DB; --mancha:#F7CFC4; --line:#EBD9CC;
+  --ajuda:#2C7696;             /* azul, oposto do pêssego: a interrogação da ajuda */
   --alerta-bg:#FFF5DB; --alerta-ink:#5E4500; --erro:#B3261E;
   --sucesso-bg:#E7F3EA; --sucesso-ink:#1E5631; --erro-bg:#FCEBEA;
   --bilhete-1:#FFFDF8; --bilhete-2:#FCEBDF; --bilhete-3:#FBE4E1;   /* cores dos recados no mural */
@@ -21,6 +22,7 @@
   --destaque:#F4A27E; --destaque-medio:#F4A27E; --destaque-escuro:#F4A27E;
   --on-destaque:#1E2430; --on-escuro:#1E2430;
   --destaque-suave:#3A3038; --mancha:#5A3C3A; --line:#3C4558;
+  --ajuda:#7FC3E3;
   --alerta-bg:#2E2610; --alerta-ink:#F1D58A; --erro:#FFB4AB;
   --sucesso-bg:#1D3324; --sucesso-ink:#B7E4C2; --erro-bg:#3B2222;
   --bilhete-1:#272F3E; --bilhete-2:#33303A; --bilhete-3:#3A2F36;
@@ -62,24 +64,42 @@ button, input, textarea{ font:inherit; }
   .marca{ display:none; }
   #menu ul{ justify-content:center; }
 }
-#menu a:hover{ border-bottom-color:var(--destaque); }
-.menu-btn{
-  display:none; align-items:center; gap:.6rem; padding:.55rem 1rem; border:1px solid var(--line); border-radius:999px;
-  background:var(--surface); color:var(--ink); font-weight:700; font-size:.92rem; cursor:pointer;
-}
-.menu-btn-icone, .menu-btn-icone::before, .menu-btn-icone::after{ display:block; width:18px; height:2px; background:currentColor; border-radius:2px; }
-.menu-btn-icone{ position:relative; }
-.menu-btn-icone::before, .menu-btn-icone::after{ content:""; position:absolute; left:0; }
-.menu-btn-icone::before{ top:-6px; } .menu-btn-icone::after{ top:6px; }
+#menu a:hover, #menu a[aria-current]{ border-bottom-color:var(--destaque); }
 section[id]{ scroll-margin-top:4.25rem; }
+/* Carrinho no canto superior direito, com a quantidade de itens */
+.carrinho-topo{
+  position:relative; flex:none; display:inline-grid; place-items:center; width:2.75rem; height:2.75rem; padding:0;
+  border-radius:50%; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;
+  box-shadow:0 2px 8px rgba(58,69,89,.14);
+}
+.carrinho-icone{ width:1.45rem; height:1.45rem; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.carrinho-qtd{
+  position:absolute; top:-.35rem; right:-.35rem; min-width:1.35rem; height:1.35rem; padding:0 .3rem; border-radius:999px;
+  background:var(--destaque-escuro); color:var(--on-escuro); font-size:.78rem; font-weight:700; line-height:1.35rem; text-align:center;
+}
+@media (min-width:861px){
+  .menu-in{ position:relative; padding-inline:4.5rem; }
+  .carrinho-topo{ position:absolute; right:1.25rem; top:50%; transform:translateY(-50%); }
+}
 
+/* Celular: o menu fica sempre à vista, como uma faixa de atalhos que rola para o lado.
+   O esmaecido na borda direita indica que há mais atalhos. */
 @media (max-width:860px){
-  .menu-in{ flex-wrap:wrap; }
-  .menu-btn{ display:inline-flex; }
-  #menu{ display:none; flex-basis:100%; }
-  #menu.aberto{ display:block; padding-bottom:.75rem; }
-  #menu ul{ flex-direction:column; gap:0; justify-content:flex-start; }
-  #menu a{ display:block; padding:.8rem .25rem; font-size:1.02rem; border-bottom:1px solid var(--line); }
+  .menu-in{ padding:.45rem 0 .45rem 1rem; gap:.6rem; }
+  .marca{ flex:none; font-size:1.4rem; }
+  #menu{
+    position:relative; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none; overscroll-behavior-x:contain;
+    -webkit-mask-image:linear-gradient(to right, transparent, #000 .6rem, #000 calc(100% - 2.2rem), transparent);
+    mask-image:linear-gradient(to right, transparent, #000 .6rem, #000 calc(100% - 2.2rem), transparent);
+  }
+  #menu::-webkit-scrollbar{ display:none; }
+  #menu ul{ flex-wrap:nowrap; gap:.45rem; justify-content:flex-start; padding:.1rem 2rem .1rem .5rem; width:max-content; }
+  #menu a{
+    white-space:nowrap; padding:.42rem .85rem; border:1px solid var(--line); border-radius:999px; background:var(--surface);
+    font-size:.86rem; letter-spacing:0; text-transform:none;
+  }
+  #menu a[aria-current]{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .carrinho-topo{ width:2.5rem; height:2.5rem; margin-right:.85rem; }
 }
 
 /* ---------- Hero ---------- */
@@ -177,7 +197,7 @@ h1 .e-comercial{ display:block; font-style:italic; font-weight:400; font-size:cl
 
 /* Recepção */
 .recepcao-info{ max-width:34rem; margin:0 auto; text-align:center; }
-.recepcao-linha{ font-family:var(--serif); font-size:1.7rem; line-height:1.25; margin:0 0 .35rem; }
+.recepcao-linha{ font-family:var(--serif); font-size:1.7rem; line-height:1.25; margin:0 0 .35rem; text-wrap:balance; }
 .recepcao-linha:empty{ display:none; }
 .recepcao-endereco{ color:var(--muted); margin:.75rem 0 0; }
 .recepcao-info .acoes{ justify-content:center; margin-top:1.5rem; }
@@ -201,7 +221,11 @@ h1 .e-comercial{ display:block; font-style:italic; font-weight:400; font-size:cl
   display:flex; flex-direction:column;
   box-shadow:0 2px 10px rgba(58,69,89,.05);
 }
-.item-foto{ position:relative; background:var(--surface); }
+.item-foto{ position:relative; background:var(--surface); cursor:pointer; overflow:hidden; }
+@media (hover:hover) and (prefers-reduced-motion: no-preference){
+  .item-foto .item-img{ transition:transform .3s ease; }
+  .item-foto:hover .item-img{ transform:scale(1.03); }
+}
 .item-img{ display:block; width:100%; height:auto; aspect-ratio:1; object-fit:cover; background:var(--surface); }
 .item-img.neutro{ aspect-ratio:1; background:var(--destaque-suave); }
 .item-foto .selo{ position:absolute; top:.75rem; left:.75rem; margin:0; }
@@ -224,6 +248,14 @@ h1 .e-comercial{ display:block; font-style:italic; font-weight:400; font-size:cl
   border:1px solid currentColor; border-radius:999px; padding:.12rem .65rem; background:var(--surface);
 }
 .item.dado h3, .item.dado .desc, .item.dado .preco{ opacity:.78; }
+/* "Já comprou o presente?": no fim da lista, com o contato dos noivos à vista */
+.aviso-comprou{
+  max-width:36rem; margin:3rem auto 0; text-align:center; background:var(--surface);
+  border:1.5px solid var(--destaque); border-radius:16px; padding:1.4rem 1.5rem 1.5rem; box-shadow:0 8px 22px rgba(58,69,89,.09);
+}
+.aviso-comprou h3{ font-family:var(--serif); font-weight:600; font-size:1.7rem; line-height:1.2; margin:0 0 .4rem; }
+.aviso-comprou p{ margin:0; }
+.aviso-comprou .contatos{ justify-content:center; }
 
 .btn{
   appearance:none; display:inline-flex; align-items:center; justify-content:center;
@@ -257,17 +289,20 @@ body:has(.carrinho-flutuante:not([hidden])) .rodape-site{ padding-bottom:6rem; }
 .carrinho-dados .radio{ margin:-.3rem 0 .9rem; font-size:.92rem; }
 
 /* ---------- Ajuda passo a passo ---------- */
-.ajuda-chamada{ text-align:center; margin:-1rem 0 2rem; }
+.ajuda-chamada{ text-align:center; margin:-.5rem 0 2.25rem; }
+.ajuda-chamada.no-carrinho{ margin:1.1rem 0 1.25rem; }
 .btn-ajuda{
-  display:inline-flex; align-items:center; gap:.65rem; padding:.75rem 1.25rem; border-radius:999px;
-  border:1.5px solid var(--destaque-escuro); background:var(--surface); color:var(--destaque-escuro);
-  font-weight:700; font-size:1rem; line-height:1.3; cursor:pointer; text-align:left;
+  display:inline-flex; align-items:center; gap:.9rem; padding:1.05rem 1.8rem 1.05rem 1.1rem; border-radius:999px;
+  border:2px solid var(--destaque-escuro); background:var(--destaque-suave); color:var(--destaque-escuro);
+  font-weight:700; font-size:1.28rem; line-height:1.3; cursor:pointer; text-align:left;
+  box-shadow:0 6px 18px rgba(168,73,31,.16);
 }
-.btn-ajuda:hover{ background:var(--destaque-suave); }
+.btn-ajuda:hover{ background:var(--surface); }
 .btn-ajuda-icone{
-  flex:none; display:inline-grid; place-items:center; width:1.7rem; height:1.7rem; border-radius:50%;
-  background:var(--destaque-escuro); color:var(--on-escuro); font-family:var(--serif); font-size:1.15rem; font-weight:700;
+  flex:none; display:inline-grid; place-items:center; width:2.6rem; height:2.6rem; border-radius:50%;
+  background:var(--ajuda); color:var(--on-escuro); font-family:var(--serif); font-size:1.75rem; font-weight:700;
 }
+.no-carrinho .btn-ajuda{ width:100%; font-size:1.05rem; }
 .dlg-ajuda{ width:min(38rem, calc(100% - 1.5rem)); }
 .ajuda-corpo{ padding:1.6rem 1.75rem 2rem; font-size:1.12rem; line-height:1.6; }
 .ajuda-corpo h3{ font-family:var(--serif); font-weight:600; font-size:1.5rem; color:var(--destaque-escuro); margin:1.6rem 0 .4rem; scroll-margin-top:1rem; }
@@ -288,6 +323,16 @@ body:has(.carrinho-flutuante:not([hidden])) .rodape-site{ padding-bottom:6rem; }
 /* "Ainda com dificuldade?": Contribuição livre ou WhatsApp dos noivos */
 .ajuda-socorro{ background:var(--destaque-suave); border-radius:14px; padding:1rem 1.1rem; margin:1.2rem 0 .5rem; }
 .ajuda-socorro p{ margin:0 0 .3rem; }
+/* "Achou difícil?": o caminho mais simples (Pix direto), em destaque no topo da ajuda */
+.ajuda-facil{ background:var(--destaque-suave); border:2px solid var(--destaque-escuro); border-radius:16px; padding:1.1rem 1.2rem 1.25rem; margin:1rem 0 1.4rem; }
+.ajuda-corpo .ajuda-facil h3{ margin:0 0 .4rem; font-size:1.7rem; line-height:1.2; }
+.ajuda-facil p{ margin:0 0 1rem; }
+.ajuda-facil .ajuda-facil-contato{ margin:1.1rem 0 0; font-size:1rem; }
+.btn-grande{ width:100%; font-size:1.15rem; padding:1.05rem 1.4rem; }
+.ajuda-barra-facil{
+  position:sticky; bottom:0; z-index:2; padding:.75rem 1.75rem calc(.75rem + env(safe-area-inset-bottom,0px));
+  background:var(--surface); border-top:1px solid var(--line); box-shadow:0 -6px 16px rgba(58,69,89,.1);
+}
 .contatos{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; }
 .contatos .btn{ flex:1 1 10rem; }
 .ajuda-lista{ padding-left:1.3rem; }

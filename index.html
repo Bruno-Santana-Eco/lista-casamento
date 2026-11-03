@@ -54,20 +54,22 @@
 <header class="menu-barra" id="menu-barra">
   <div class="menu-in">
     <a class="marca" href="#inicio" aria-label="Início"><span id="marca"></span></a>
-    <button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">
-      <span class="menu-btn-icone" aria-hidden="true"></span><span>Menu</span>
-    </button>
     <nav id="menu" aria-label="Seções do site">
       <ul>
         <li><a href="#inicio">Home</a></li>
         <li><a href="#casal">O Casal</a></li>
-        <li id="menu-recepcao" hidden><a href="#recepcao">Recepção</a></li>
-        <li><a href="#presentes">Lista de presentes</a></li>
-        <li><a href="#contribuicao-livre">Contribuição livre</a></li>
         <li><a href="#presenca">Confirme presença</a></li>
         <li><a href="#recados">Recados</a></li>
+        <li><a href="#presentes">Lista de presentes</a></li>
+        <li><a href="#contribuicao-livre">Contribuição livre</a></li>
+        <li id="menu-recepcao" hidden><a href="#recepcao">Local</a></li>
       </ul>
     </nav>
+    <!-- Carrinho no canto superior direito: aparece junto com o "Ver carrinho" de baixo -->
+    <button class="carrinho-topo" id="carrinho-topo" type="button" hidden>
+      <svg class="carrinho-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 4h2.4l2.2 10.3a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2L20.7 8H5.8"/><circle cx="9.6" cy="19.6" r="1.4"/><circle cx="17.2" cy="19.6" r="1.4"/></svg>
+      <span class="carrinho-qtd" id="carrinho-qtd" aria-hidden="true"></span>
+    </button>
   </div>
 </header>
 
@@ -142,19 +144,49 @@
   </div>
 </section>
 
-<section class="secao alt" id="recepcao" aria-labelledby="recepcao-titulo" hidden>
-  <div class="secao-in">
-    <h2 class="titulo" id="recepcao-titulo">Recepção</h2>
-    <div class="recepcao-info">
-      <p class="recepcao-linha" id="rec-data"></p>
-      <p class="recepcao-linha" id="rec-horario"></p>
-      <p class="recepcao-linha" id="rec-local"></p>
-      <p class="recepcao-endereco" id="rec-endereco"></p>
-      <div class="acoes">
-        <a class="btn" id="rec-maps" target="_blank" rel="noopener noreferrer">Abrir no Maps</a>
-        <a class="btn sec" id="rec-waze" target="_blank" rel="noopener noreferrer">Abrir no Waze</a>
+<section class="secao alt" id="presenca" aria-labelledby="presenca-titulo">
+  <div class="secao-in estreita">
+    <h2 class="titulo" id="presenca-titulo">Confirme presença</h2>
+    <p class="intro">Conte para a gente se você vem e com quantas pessoas. Assim a festa fica do tamanho certo.</p>
+    <p class="alerta" id="presenca-encerrada" hidden>As confirmações foram encerradas. Se precisar, fale com os noivos.</p>
+    <form class="form" id="form-presenca" novalidate>
+      <label class="campo">Nome e sobrenome<input name="nome" autocomplete="name" maxlength="80" required></label>
+      <label class="campo">Celular com DDD<input type="tel" name="telefone" autocomplete="tel" inputmode="tel" placeholder="(71) 99999-9999" required></label>
+      <p class="nota">Se precisar mudar a resposta depois, é só enviar de novo com o mesmo celular.</p>
+      <fieldset class="campo-grupo">
+        <legend>Você vai comparecer?</legend>
+        <label class="radio"><input type="radio" name="comparece" value="sim" checked> Sim, vou</label>
+        <label class="radio"><input type="radio" name="comparece" value="nao"> Não poderei ir</label>
+      </fieldset>
+      <div class="campo-duplo" id="presenca-pessoas">
+        <label class="campo">Adultos (contando você)<input type="number" name="adultos" min="1" value="1" inputmode="numeric"></label>
+        <label class="campo">Crianças<input type="number" name="criancas" min="0" value="0" inputmode="numeric"></label>
       </div>
-    </div>
+      <label class="campo">Quer detalhar quem vai ou outra informação? (opcional)<textarea name="mensagem" rows="3" maxlength="500" placeholder="Ex.: o nome de quem vai com você"></textarea></label>
+      <p class="nota">Para deixar uma mensagem de carinho para os noivos, use os <a class="link" href="#recados">Recados</a>, logo abaixo.</p>
+      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="nota">Usamos estes dados só para organizar a festa. Apenas os noivos têm acesso.</p>
+      <p class="aviso-form" id="aviso-presenca" role="status" hidden></p>
+      <button class="btn" type="submit">Enviar resposta</button>
+    </form>
+  </div>
+</section>
+
+<section class="secao alt" id="recados" aria-labelledby="recados-titulo">
+  <div class="secao-in estreita">
+    <h2 class="titulo" id="recados-titulo">Recados</h2>
+    <p class="intro">Deixe sua mensagem para os noivos. A gente lê com carinho e, depois de conferir, publica aqui no mural.</p>
+    <form class="form" id="form-recado" novalidate>
+      <label class="campo">Seu nome<input name="nome" autocomplete="name" maxlength="80" required></label>
+      <label class="campo">Mensagem<textarea name="mensagem" rows="4" maxlength="500" required></textarea></label>
+      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="nota">Seu nome e sua mensagem ficam visíveis para todos depois de publicados.</p>
+      <p class="aviso-form" id="aviso-recado" role="status" hidden></p>
+      <button class="btn" type="submit">Enviar recado</button>
+    </form>
+  </div>
+  <div class="secao-in">
+    <div class="mural-recados" id="mural-recados" role="region" aria-label="Recados dos convidados" hidden></div>
   </div>
 </section>
 
@@ -178,7 +210,7 @@
     <div class="barra-lista">
       <div class="filtros" role="group" aria-label="Filtrar presentes">
         <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
-        <button type="button" data-filtro="vaquinhas" aria-pressed="false">Vaquinhas</button>
+        <button type="button" data-filtro="vaquinhas" aria-pressed="false">Presentes com vaquinhas</button>
         <button type="button" data-filtro="presentes" aria-pressed="false">Presentes</button>
         <button type="button" data-filtro="disponiveis" aria-pressed="false">Ainda disponíveis</button>
       </div>
@@ -192,6 +224,11 @@
       </label>
     </div>
     <div class="mural" id="mural"></div>
+    <div class="aviso-comprou" data-caixa-contatos>
+      <h3>Já comprou o presente dos noivos?</h3>
+      <p>Avise-os para tirar o item da lista de presentes. Assim ninguém repete o mesmo presente.</p>
+      <div class="contatos" data-contatos-ao-ver data-rotulo="Avisar" data-mensagem="Oi! Já comprei um presente da lista de vocês. O presente é: " aria-live="polite" hidden></div>
+    </div>
   </div>
 </section>
 
@@ -217,48 +254,19 @@
   </div>
 </section>
 
-<section class="secao" id="presenca" aria-labelledby="presenca-titulo">
-  <div class="secao-in estreita">
-    <h2 class="titulo" id="presenca-titulo">Confirme presença</h2>
-    <p class="intro">Conte para a gente se você vem e com quantas pessoas. Assim a festa fica do tamanho certo.</p>
-    <p class="alerta" id="presenca-encerrada" hidden>As confirmações foram encerradas. Se precisar, fale com os noivos.</p>
-    <form class="form" id="form-presenca" novalidate>
-      <label class="campo">Nome e sobrenome<input name="nome" autocomplete="name" maxlength="80" required></label>
-      <label class="campo">Celular com DDD<input type="tel" name="telefone" autocomplete="tel" inputmode="tel" placeholder="(71) 99999-9999" required></label>
-      <p class="nota">Se precisar mudar a resposta depois, é só enviar de novo com o mesmo celular.</p>
-      <fieldset class="campo-grupo">
-        <legend>Você vai comparecer?</legend>
-        <label class="radio"><input type="radio" name="comparece" value="sim" checked> Sim, vou</label>
-        <label class="radio"><input type="radio" name="comparece" value="nao"> Não poderei ir</label>
-      </fieldset>
-      <div class="campo-duplo" id="presenca-pessoas">
-        <label class="campo">Adultos (contando você)<input type="number" name="adultos" min="1" value="1" inputmode="numeric"></label>
-        <label class="campo">Crianças<input type="number" name="criancas" min="0" value="0" inputmode="numeric"></label>
-      </div>
-      <label class="campo">Mensagem (opcional)<textarea name="mensagem" rows="3" maxlength="500"></textarea></label>
-      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="nota">Usamos estes dados só para organizar a festa. Apenas os noivos têm acesso.</p>
-      <p class="aviso-form" id="aviso-presenca" role="status" hidden></p>
-      <button class="btn" type="submit">Enviar resposta</button>
-    </form>
-  </div>
-</section>
-
-<section class="secao alt" id="recados" aria-labelledby="recados-titulo">
-  <div class="secao-in estreita">
-    <h2 class="titulo" id="recados-titulo">Recados</h2>
-    <p class="intro">Deixe uma mensagem para os noivos. Ela aparece aqui depois que a gente aprovar.</p>
-    <form class="form" id="form-recado" novalidate>
-      <label class="campo">Seu nome<input name="nome" autocomplete="name" maxlength="80" required></label>
-      <label class="campo">Mensagem<textarea name="mensagem" rows="4" maxlength="500" required></textarea></label>
-      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="nota">Seu nome e sua mensagem ficam visíveis para todos depois de aprovados.</p>
-      <p class="aviso-form" id="aviso-recado" role="status" hidden></p>
-      <button class="btn" type="submit">Enviar recado</button>
-    </form>
-  </div>
+<section class="secao" id="recepcao" aria-labelledby="recepcao-titulo" hidden>
   <div class="secao-in">
-    <div class="mural-recados" id="mural-recados" role="region" aria-label="Recados dos convidados" hidden></div>
+    <h2 class="titulo" id="recepcao-titulo">Local da celebração</h2>
+    <div class="recepcao-info">
+      <p class="recepcao-linha" id="rec-data"></p>
+      <p class="recepcao-linha" id="rec-horario"></p>
+      <p class="recepcao-linha" id="rec-local"></p>
+      <p class="recepcao-endereco" id="rec-endereco"></p>
+      <div class="acoes">
+        <a class="btn" id="rec-maps" target="_blank" rel="noopener noreferrer">Abrir no Maps</a>
+        <a class="btn sec" id="rec-waze" target="_blank" rel="noopener noreferrer">Abrir no Waze</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -281,7 +289,14 @@
   <button class="fechar" type="button" data-fechar-ajuda aria-label="Fechar">×</button>
   <div class="ajuda-corpo">
     <h2 id="ajuda-titulo" tabindex="-1">Como presentear, passo a passo</h2>
-    <p>Sem pressa: cada passo tem a imagem da tela. Se travar, no fim de cada parte tem como pedir ajuda.</p>
+    <div class="ajuda-facil" id="ajuda-facil" data-caixa-contatos>
+      <h3>Achou difícil? Faça um Pix direto</h3>
+      <p>É o jeito mais simples: você digita o valor que quiser, toca em <strong>Gerar QR Code do Pix</strong> e paga pelo aplicativo do seu banco. Depois, avise os noivos, que eles registram o seu presente na lista.</p>
+      <button class="btn btn-grande" type="button" data-ir-livre>Fazer um Pix direto</button>
+      <p class="ajuda-facil-contato">Ficou com dúvida? Fale com os noivos no WhatsApp:</p>
+      <div class="contatos" data-contatos-auto aria-live="polite" hidden></div>
+    </div>
+    <p>Prefere presentear um item da lista? Siga o passo a passo, sem pressa: cada passo tem a imagem da tela.</p>
     <nav class="ajuda-atalhos" aria-label="Partes da ajuda">
       <button class="link" type="button" data-ajuda="escolher">Escolher o presente</button>
       <button class="link" type="button" data-ajuda="pix">Pagar com Pix</button>
@@ -342,7 +357,7 @@
     <div class="ajuda-socorro" data-caixa-contatos>
       <p><strong>Ainda com dificuldade?</strong> Faça um Pix direto pela <strong>Contribuição livre</strong> e avise os noivos, que eles registram o seu presente na lista. Se continuar difícil, peça ajuda a eles.</p>
       <div class="acoes">
-        <button class="btn" type="button" data-ir-livre>Ir para a Contribuição livre</button>
+        <button class="btn" type="button" data-ir-livre>Fazer um Pix direto</button>
         <button class="btn sec" type="button" data-contatos>Falar com os noivos no WhatsApp</button>
       </div>
       <div class="contatos" aria-live="polite" hidden></div>
@@ -372,7 +387,7 @@
     <div class="ajuda-socorro" data-caixa-contatos>
       <p><strong>Ainda com dificuldade?</strong> Faça um Pix direto pela <strong>Contribuição livre</strong> e avise os noivos, que eles registram o seu presente na lista. Se continuar difícil, peça ajuda a eles.</p>
       <div class="acoes">
-        <button class="btn" type="button" data-ir-livre>Ir para a Contribuição livre</button>
+        <button class="btn" type="button" data-ir-livre>Fazer um Pix direto</button>
         <button class="btn sec" type="button" data-contatos>Falar com os noivos no WhatsApp</button>
       </div>
       <div class="contatos" aria-live="polite" hidden></div>
@@ -389,6 +404,10 @@
     </ul>
 
     <div class="acoes"><button class="btn" type="button" data-fechar-ajuda>Entendi</button></div>
+  </div>
+  <!-- Fica presa no rodapé da ajuda enquanto a pessoa rola os passos: o caminho mais simples sempre à vista -->
+  <div class="ajuda-barra-facil" id="ajuda-barra-facil" hidden>
+    <button class="btn btn-grande" type="button" data-ir-livre>Achou difícil? Faça um Pix direto</button>
   </div>
 </dialog>
 
