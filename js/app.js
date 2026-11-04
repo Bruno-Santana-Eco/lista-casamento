@@ -27,7 +27,10 @@ porId('data-hero').setAttribute('aria-label', `${Number(ddC)}/${Number(mmC)}/${a
 if (CONFIG.festa){
   porId('festa-titulo').textContent = CONFIG.festa.titulo;
   porId('festa-data').textContent = CONFIG.festa.data;
-  porId('festa-traje').textContent = CONFIG.festa.traje || '';
+  porId('festa-horario').textContent = CONFIG.festa.horario || '';
+  porId('festa-horario').hidden = !CONFIG.festa.horario;
+  // O "⁠" (invisível) impede a linha de quebrar no hífen: “bem-vinda” não vira “bem-” / “vinda” no celular
+  porId('festa-traje').textContent = (CONFIG.festa.traje || '').replace(/(\p{L})-(\p{L})/gu, '$1-⁠$2');
   porId('festa-traje-linha').hidden = !CONFIG.festa.traje;
   porId('convite-festa').hidden = false;
 }
@@ -58,7 +61,7 @@ const rec = CONFIG.recepcao;
 if (rec && rec.endereco){
   const q = encodeURIComponent(rec.endereco);
   porId('rec-data').textContent = rec.data || '';
-  porId('rec-horario').textContent = rec.horario ? `às ${rec.horario}` : '';
+  porId('rec-horario').textContent = rec.horario || '';
   porId('rec-local').textContent = rec.local || '';
   porId('rec-endereco').textContent = rec.endereco;
   porId('rec-maps').href = `https://www.google.com/maps/search/?api=1&query=${q}`;
@@ -88,7 +91,8 @@ marcarSecaoAtual();
 
 /* ---------- Contagem regressiva ---------- */
 const contagemFesta = CONFIG.contagemPara !== 'casamento';
-const alvo = new Date(`${CONFIG.datas[contagemFesta ? 'festa' : 'casamento']}T00:00:00-03:00`);
+const horaAlvo = contagemFesta && CONFIG.horaFesta ? CONFIG.horaFesta : '00:00';
+const alvo = new Date(`${CONFIG.datas[contagemFesta ? 'festa' : 'casamento']}T${horaAlvo}:00-03:00`);
 porId('contagem-titulo').textContent = contagemFesta ? 'Faltam para a nossa celebração' : 'Faltam para o nosso casamento';
 const dois = n => String(n).padStart(2, '0');
 function atualizarContagem(){
@@ -167,9 +171,15 @@ if (prazoPresenca && Date.now() > prazoPresenca.getTime()){
   porId('presenca-encerrada').hidden = false;
 }
 
+// Quem vem detalha quem vai junto; quem não vem só deixa outra informação, se quiser
 const atualizarPessoas = () => {
   const vem = formPresenca.elements.comparece.value === 'sim';
   porId('presenca-pessoas').hidden = !vem;
+  porId('presenca-detalhe-rotulo').textContent = vem ? 'Quem vai com você? (opcional)' : 'Quer deixar alguma informação? (opcional)';
+  porId('presenca-detalhe-dica').hidden = !vem;
+  const detalhe = formPresenca.elements.mensagem;
+  detalhe.placeholder = vem ? 'Ex.: Maria (esposa), Pedro (filho, 6 anos)' : '';
+  if (vem) detalhe.setAttribute('aria-describedby', 'presenca-detalhe-dica'); else detalhe.removeAttribute('aria-describedby');
 };
 formPresenca.addEventListener('change', e => { if (e.target.name === 'comparece') atualizarPessoas(); });
 

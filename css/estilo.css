@@ -359,6 +359,8 @@ body:has(.carrinho-flutuante:not([hidden])) .rodape-site{ padding-bottom:6rem; }
 .radio{ display:flex; align-items:center; gap:.6rem; padding:.3rem 0; cursor:pointer; }
 .radio input{ accent-color:var(--destaque-escuro); width:1.1rem; height:1.1rem; }
 .campo-duplo{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+/* Se um rótulo quebrar em duas linhas (no celular), a sobra fica no texto e os quadrados continuam iguais e alinhados */
+.campo-duplo .campo{ grid-template-rows:1fr auto; }
 .aviso-form{ background:var(--alerta-bg); color:var(--alerta-ink); border-radius:8px; padding:.7rem .9rem; font-size:.92rem; margin:.5rem 0; }
 .aviso-form.sucesso{ background:var(--sucesso-bg); color:var(--sucesso-ink); }
 .aviso-form.erro{ background:var(--erro-bg); color:var(--erro); font-weight:600; }

@@ -10,11 +10,14 @@ const CONFIG = {
 
   // Datas no formato AAAA-MM-DD
   datas: { casamento: "2026-11-26", festa: "2026-12-13" },
+  // Hora em que a festa começa (HH:MM): a contagem regressiva termina nela
+  horaFesta: "10:00",
   // Caixa de destaque no topo: o convite é para a celebração (deixe festa: null para esconder)
   festa: {
     titulo: "Celebração entre família e amigos",
     data: "Domingo, 13 de dezembro de 2026",
-    traje: "esporte casual, clima de piscina (se quiser, leve sua roupa de banho)"
+    horario: "Das 10h às 16h",
+    traje: "esporte fino, leve e fresco. A piscina estará esperando (roupa de banho é bem-vinda)"
   },
 
   // Contagem regressiva: "festa" ou "casamento"
@@ -26,7 +29,7 @@ const CONFIG = {
   // Local da celebração, no fim da página. A seção só aparece quando o endereço estiver preenchido
   recepcao: {
     data: "Domingo, 13 de dezembro de 2026",
-    horario: "",
+    horario: "Das 10h às 16h",
     local: "",
     endereco: "Alameda Praia do Flamengo, Stella Maris, Salvador - BA"
   },

@@ -59,9 +59,9 @@
         <li><a href="#inicio">Home</a></li>
         <li><a href="#casal">O Casal</a></li>
         <li><a href="#presenca">Confirme presença</a></li>
-        <li><a href="#recados">Recados</a></li>
         <li><a href="#presentes">Lista de presentes</a></li>
         <li><a href="#contribuicao-livre">Contribuição livre</a></li>
+        <li><a href="#recados">Recados</a></li>
         <li id="menu-recepcao" hidden><a href="#recepcao">Local</a></li>
       </ul>
     </nav>
@@ -110,6 +110,7 @@
         <p class="convite-rotulo">O convite é para</p>
         <p class="convite-titulo" id="festa-titulo"></p>
         <p class="convite-data" id="festa-data"></p>
+        <p class="convite-data" id="festa-horario" hidden></p>
         <p class="convite-traje" id="festa-traje-linha"><strong>Traje:</strong> <span id="festa-traje"></span></p>
       </div>
     </div>
@@ -162,31 +163,14 @@
         <label class="campo">Adultos (contando você)<input type="number" name="adultos" min="1" value="1" inputmode="numeric"></label>
         <label class="campo">Crianças<input type="number" name="criancas" min="0" value="0" inputmode="numeric"></label>
       </div>
-      <label class="campo">Quer detalhar quem vai ou outra informação? (opcional)<textarea name="mensagem" rows="3" maxlength="500" placeholder="Ex.: o nome de quem vai com você"></textarea></label>
-      <p class="nota">Para deixar uma mensagem de carinho para os noivos, use os <a class="link" href="#recados">Recados</a>, logo abaixo.</p>
+      <label class="campo"><span id="presenca-detalhe-rotulo">Quem vai com você? (opcional)</span><textarea name="mensagem" rows="3" maxlength="500" placeholder="Ex.: Maria (esposa), Pedro (filho, 6 anos)" aria-describedby="presenca-detalhe-dica"></textarea></label>
+      <p class="nota" id="presenca-detalhe-dica">Escreva o nome de cada pessoa da família que vai com você. Se quiser contar mais alguma coisa, pode usar este espaço também.</p>
+      <p class="nota">Para deixar uma mensagem de carinho para os noivos, use os <a class="link" href="#recados">Recados</a>, mais abaixo.</p>
       <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
       <p class="nota">Usamos estes dados só para organizar a festa. Apenas os noivos têm acesso.</p>
       <p class="aviso-form" id="aviso-presenca" role="status" hidden></p>
       <button class="btn" type="submit">Enviar resposta</button>
     </form>
-  </div>
-</section>
-
-<section class="secao alt" id="recados" aria-labelledby="recados-titulo">
-  <div class="secao-in estreita">
-    <h2 class="titulo" id="recados-titulo">Recados</h2>
-    <p class="intro">Deixe sua mensagem para os noivos. A gente lê com carinho e, depois de conferir, publica aqui no mural.</p>
-    <form class="form" id="form-recado" novalidate>
-      <label class="campo">Seu nome<input name="nome" autocomplete="name" maxlength="80" required></label>
-      <label class="campo">Mensagem<textarea name="mensagem" rows="4" maxlength="500" required></textarea></label>
-      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="nota">Seu nome e sua mensagem ficam visíveis para todos depois de publicados.</p>
-      <p class="aviso-form" id="aviso-recado" role="status" hidden></p>
-      <button class="btn" type="submit">Enviar recado</button>
-    </form>
-  </div>
-  <div class="secao-in">
-    <div class="mural-recados" id="mural-recados" role="region" aria-label="Recados dos convidados" hidden></div>
   </div>
 </section>
 
@@ -254,7 +238,26 @@
   </div>
 </section>
 
-<section class="secao" id="recepcao" aria-labelledby="recepcao-titulo" hidden>
+<!-- Recados depois dos presentes: o mural pode crescer bastante sem empurrar a lista para baixo -->
+<section class="secao" id="recados" aria-labelledby="recados-titulo">
+  <div class="secao-in estreita">
+    <h2 class="titulo" id="recados-titulo">Recados</h2>
+    <p class="intro">Deixe sua mensagem para os noivos. A gente lê com carinho e, depois de conferir, publica aqui no mural.</p>
+    <form class="form" id="form-recado" novalidate>
+      <label class="campo">Seu nome<input name="nome" autocomplete="name" maxlength="80" required></label>
+      <label class="campo">Mensagem<textarea name="mensagem" rows="4" maxlength="500" required></textarea></label>
+      <input class="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="nota">Seu nome e sua mensagem ficam visíveis para todos depois de publicados.</p>
+      <p class="aviso-form" id="aviso-recado" role="status" hidden></p>
+      <button class="btn" type="submit">Enviar recado</button>
+    </form>
+  </div>
+  <div class="secao-in">
+    <div class="mural-recados" id="mural-recados" role="region" aria-label="Recados dos convidados" hidden></div>
+  </div>
+</section>
+
+<section class="secao alt" id="recepcao" aria-labelledby="recepcao-titulo" hidden>
   <div class="secao-in">
     <h2 class="titulo" id="recepcao-titulo">Local da celebração</h2>
     <div class="recepcao-info">
