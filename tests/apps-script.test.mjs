@@ -7,7 +7,8 @@ const modulo = { exports: {} };
 new Function('module', codigo)(modulo);
 const {
   agregarPresentes, validarContribuicao, montarCheckout, pagamentoConfirmado, contaComoPendente, limparTexto, verdadeiro,
-  normalizarCelular, validarPresenca, planejarPresenca, prazoEncerrado, novoIdResposta, validarRecado, proximaLinhaLivre, lerContatos, CFG
+  normalizarCelular, validarPresenca, planejarPresenca, prazoEncerrado, novoIdResposta, validarRecado, proximaLinhaLivre, lerContatos,
+  semFormula, idInfinitePayValido, temChave, grupoDoLimite, contarEmailFormulario, CFG
 } = modulo.exports;
 
 const itens = [
@@ -212,4 +213,73 @@ assert.deepEqual(
 assert.deepEqual(lerContatos(''), []);
 assert.deepEqual(lerContatos(null), []);
 
-console.log('OK: agregação, privacidade da resposta pública, validação da contribuição, presença e recados.');
+// ---------- Fórmulas: nada do que o script grava vira fórmula na planilha ----------
+assert.equal(semFormula('=1+1'), "'=1+1");
+assert.equal(semFormula('+55 71'), "'+55 71");
+assert.equal(semFormula('-x'), "'-x");
+assert.equal(semFormula('@x'), "'@x");
+assert.equal(semFormula('abc'), 'abc');
+assert.equal(semFormula(''), '');
+assert.equal(semFormula(1000), 1000);
+assert.equal(semFormula(true), true);
+const dia = new Date('2026-11-04T10:00:00-03:00');
+assert.equal(semFormula(dia), dia);
+assert.equal(semFormula('[{"id":"tv","valor_centavos":100}]'), '[{"id":"tv","valor_centavos":100}]');
+assert.equal(semFormula("'=já protegido"), "'=já protegido");                  // não protege duas vezes
+assert.equal(limparTexto('=HYPERLINK("http://x")', 100), "'=HYPERLINK(\"http://x\")"); // limparTexto continua protegendo
+
+// ---------- Códigos da InfinitePay (transaction_nsu e slug): só letras, números, - e _ ----------
+assert.equal(idInfinitePayValido('34bdaeab-776a-43b1-a37f-ebac5853c1fb'), true);   // transaction_nsu real
+assert.equal(idInfinitePayValido('emvoXdrSR3'), true);                              // invoice_slug real
+assert.equal(idInfinitePayValido('=IMPORTDATA("https://x")'), false);
+assert.equal(idInfinitePayValido(''), false);
+assert.equal(idInfinitePayValido(null), false);
+assert.equal(idInfinitePayValido(undefined), false);
+assert.equal(idInfinitePayValido('abc def'), false);
+assert.equal(idInfinitePayValido('a'.repeat(100)), true);
+assert.equal(idInfinitePayValido('a'.repeat(101)), false);
+
+// ---------- Limites por minuto: cada ação na sua conta; o retorno do pagamento fica de fora ----------
+assert.equal(grupoDoLimite('criar_pagamento'), 'pagamento');
+assert.equal(grupoDoLimite('presenca'), 'formulario');
+assert.equal(grupoDoLimite('recado'), 'formulario');
+assert.equal(grupoDoLimite('retorno_infinitepay'), null);
+assert.equal(grupoDoLimite('acao_que_nao_existe'), null);
+
+// ---------- Teto diário de e-mails de presença e recado ----------
+let guardado = '';
+const envios = [];
+for (let n = 1; n <= 62; n++) {
+  const cont = contarEmailFormulario(guardado, '2026-11-04', 60);
+  guardado = cont.guardar;
+  envios.push(cont.enviar);
+}
+assert.equal(envios[0], 'normal');                                               // 1º do dia
+assert.equal(envios[59], 'normal');                                              // 60º
+assert.equal(envios[60], 'aviso_teto');                                          // 61º: um aviso só
+assert.equal(envios[61], 'nao');                                                 // 62º em diante: só na planilha
+assert.equal(guardado, '2026-11-04|62');
+assert.deepEqual(contarEmailFormulario(guardado, '2026-11-05', 60), { guardar: '2026-11-05|1', enviar: 'normal' });   // dia novo zera
+assert.deepEqual(contarEmailFormulario('lixo', '2026-11-04', 60), { guardar: '2026-11-04|1', enviar: 'normal' });     // propriedade estranha
+assert.deepEqual(contarEmailFormulario(null, '2026-11-04', 60), { guardar: '2026-11-04|1', enviar: 'normal' });
+
+// ---------- Nomes nas vaquinhas: só com 3 ou mais participantes confirmados (senão daria para deduzir o valor) ----------
+const quem = (n, extra) => c({ itens_json: linhas(['geladeira', 1000]), nome: n, mostrar_nome: true, ...extra });
+const nomesDa = (...contr) => agregarPresentes(itens, contr)[0].nomes;           // itens[0] é a geladeira
+assert.deepEqual(nomesDa(quem('Ana')), []);                                      // 1 confirmado: o total seria o valor da Ana
+assert.deepEqual(nomesDa(quem('Ana'), quem('Bia')), []);                         // 2 confirmados
+assert.deepEqual(nomesDa(quem('Ana'), quem('Bia'), quem('Caio')), ['Ana', 'Bia', 'Caio']);
+assert.deepEqual(nomesDa(quem('Ana'), quem('Bia'), quem('Pend', { status: 'pendente' })), []);   // pendente não conta
+assert.deepEqual(nomesDa(quem('Ana'), quem('Bia'), quem('Anônimo', { mostrar_nome: false })), ['Ana', 'Bia']); // 3 confirmados, 1 sem nome
+assert.equal(agregarPresentes(itens, [quem('Ana')])[0].participantes, 1);       // a contagem continua aparecendo
+
+// ---------- Nomes embutidos do JavaScript (constructor, __proto__…) não derrubam a lista nem passam na validação ----------
+const estranho = agregarPresentes(itens, [c({ itens_json: linhas(['constructor', 1000], ['geladeira', 1000]) })]);
+assert.equal(estranho[0].arrecadado_confirmado, 1000);                           // só a geladeira conta
+assert.equal(ok({ itens: [{ id: 'constructor', valor_centavos: 500 }] }).erro, 'item_invalido');
+assert.equal(ok({ itens: [{ id: '__proto__', valor_centavos: 500 }] }).erro, 'item_invalido');
+assert.equal(ok({ itens: [{ id: 'toString', valor_centavos: 500 }] }).erro, 'item_invalido');
+assert.equal(temChave({ a: 1 }, 'a'), true);
+assert.equal(temChave({}, 'constructor'), false);
+
+console.log('OK: agregação, privacidade da resposta pública, validação da contribuição, presença, recados, fórmulas, limites e e-mails.');

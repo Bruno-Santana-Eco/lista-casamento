@@ -13,6 +13,7 @@ Marque cada item antes de divulgar o link.
 ## Configuração
 - [ ] `js/config.js`: `apiUrl` com a URL `.../exec`; chave Pix, nome do recebedor e cidade corretos
 - [ ] Apps Script: código mais recente colado e **nova versão** publicada
+- [ ] Depois de colar o código de 04/11/2026: `autorizar` rodado de novo (o script passa a pedir acesso só a esta planilha)
 - [ ] Propriedades do script: `INFINITEPAY_HANDLE`; `SITE_URL` com o endereço **real** do site (não mais o example.com); `EMAIL_AVISO` (opcional); `PRESENCA_PRAZO` (opcional)
 - [ ] `conferirPlanilha` responde “Planilha OK” e o gatilho `verificarPendentes` está instalado
 

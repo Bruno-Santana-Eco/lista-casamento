@@ -21,12 +21,12 @@ Mantenha a planilha **privada** (só a sua conta). Ela guarda nomes e telefones 
 - O site grava uma linha por pagamento (um carrinho com vários itens é **uma** linha). `itens_json` lista `[{"id":"geladeira","valor_centavos":10000}]`.
 - `metodo`: `infinitepay` (pagamento pelo site) ou `externo` (lançado à mão).
 - `status`:
-  - `pendente`: o convidado abriu o pagamento, mas a InfinitePay ainda não confirmou. Só aparece como “aguardando” na barra quando já existe `transaction_nsu`.
+  - `pendente`: o convidado abriu o pagamento, mas a InfinitePay ainda não confirmou. O script só grava `transaction_nsu` quando a InfinitePay confirma, então um pagamento pela InfinitePay passa direto de `pendente` (fora das barras) para `aprovado`. O “aguardando” da barra fica, na prática, para lançamentos manuais com `status` `pendente`.
   - `aprovado`: a InfinitePay confirmou (o script preenche sozinho). `confirmado`: lançado à mão por você. **Só estes dois contam como arrecadado.**
   - `cancelado`: ignorada.
 - **Não mude o status de pagamentos da InfinitePay à mão**: o script aprova sozinho depois de conferir. Se um pagamento aprovado ficar `pendente`, veja “Problemas” no [LEIAME.md](LEIAME.md).
 - A vaquinha soma `valor_centavos` (o valor do presente), nunca `paid_amount_centavos`, que na InfinitePay inclui juros do parcelamento.
-- O nome só aparece no site se `mostrar_nome` estiver marcado **e** o status for `aprovado` ou `confirmado`. O valor individual nunca aparece.
+- O nome só aparece no site se `mostrar_nome` estiver marcado, o status for `aprovado` ou `confirmado` **e** a vaquinha tiver 3 ou mais participantes confirmados. Com menos, o total confirmado revelaria quanto cada um deu. O valor individual nunca aparece.
 - A “Contribuição livre” por Pix direto **não** passa pela planilha.
 
 ### Contribuição recebida por fora do site

@@ -548,7 +548,7 @@ function passoCarrinho(){
     <p class="carrinho-total"><span>Total</span> <strong>${fmt(totalCarrinho(carrinho))}</strong></p>
     <div class="carrinho-dados">
       <label class="campo">Seu nome (para sabermos a quem agradecer)<input id="nome" autocomplete="name" maxlength="80" value="${esc(dados.nome)}"></label>
-      <label class="radio"><input type="checkbox" id="mostrar" ${dados.mostrar ? 'checked' : ''}> Mostrar meu nome na lista de quem participou (nunca mostramos o valor)</label>
+      <label class="radio"><input type="checkbox" id="mostrar" ${dados.mostrar ? 'checked' : ''}> Mostrar meu nome na lista de quem participou (aparece quando a vaquinha tiver 3 ou mais participantes; nunca mostramos o valor)</label>
       <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
       <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
@@ -621,7 +621,9 @@ function abrirCheckout(url){
 }
 
 /* ---------- Volta da InfinitePay: o site confere o pagamento e agradece ---------- */
-const linkSeguro = u => /^https:\/\/[^\s"'<>]+$/.test(String(u || '')) ? u : '';
+/* Comprovante só da InfinitePay (infinitepay.io ou subdomínio). Um link de outro site, colocado na URL por um golpista,
+   não vira “Ver comprovante” na página do casamento. */
+const linkSeguro = u => /^https:\/\/([a-z0-9-]+\.)*infinitepay\.io\/[^\s"'<>]*$/i.test(String(u || '')) ? u : '';
 
 async function verificarRetorno(){
   const p = new URLSearchParams(location.search);
