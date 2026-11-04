@@ -5,7 +5,7 @@ O plano de trabalho completo, dividido em fases, está em `PLANO.md`. Trabalhe u
 
 ## Datas
 - Casamento: 26/11/2026
-- Festa de comemoração: 13/12/2026 (é o evento dos convidados)
+- Festa de comemoração: 12/12/2026, sábado, das 10h às 16h (é o evento dos convidados; mudou em 04/11/2026, antes era 13/12)
 
 ## Arquitetura (não mudar sem perguntar)
 - **Site estático** em HTML, CSS e JavaScript puro, sem framework e sem etapa de build. Hospedado no GitHub Pages.

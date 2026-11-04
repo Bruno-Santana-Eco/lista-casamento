@@ -1,6 +1,6 @@
 # Lista de presentes — Lídia & Bruno
 
-Site do casamento (26/11/2026) e da festa de comemoração (13/12/2026): lista de presentes com vaquinhas, contribuição livre por Pix, confirmação de presença e mural de recados.
+Site do casamento (26/11/2026) e da festa de comemoração (12/12/2026): lista de presentes com vaquinhas, contribuição livre por Pix, confirmação de presença e mural de recados.
 
 ## Como funciona
 

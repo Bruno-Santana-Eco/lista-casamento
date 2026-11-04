@@ -23,7 +23,7 @@ porId('nome2').textContent = CONFIG.casal.nome2;
 porId('marca').textContent = `${CONFIG.casal.nome1[0]} & ${CONFIG.casal.nome2[0]}`;
 porId('data-hero').innerHTML = `${ddC}<span aria-hidden="true">|</span>${mmC}<span aria-hidden="true">|</span>${aaaaC}`;
 porId('data-hero').setAttribute('aria-label', `${Number(ddC)}/${Number(mmC)}/${aaaaC}`);
-/* Caixa de destaque: o convite é para a celebração (13/12), não para o casamento (26/11) */
+/* Caixa de destaque: o convite é para a celebração (12/12), não para o casamento (26/11) */
 if (CONFIG.festa){
   porId('festa-titulo').textContent = CONFIG.festa.titulo;
   porId('festa-data').textContent = CONFIG.festa.data;
