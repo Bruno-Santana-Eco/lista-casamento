@@ -17,7 +17,7 @@ const CONFIG = {
     titulo: "Celebração entre família e amigos",
     data: "Sábado, 12 de dezembro de 2026",
     horario: "Das 10h às 16h",
-    traje: "esporte fino, leve e fresco. A piscina estará esperando (roupa de banho é bem-vinda)"
+    traje: "casual, leve e fresco. A piscina estará esperando (roupa de banho é bem-vinda)"
   },
 
   // Contagem regressiva: "festa" ou "casamento"
