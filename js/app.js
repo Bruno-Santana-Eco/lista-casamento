@@ -344,6 +344,7 @@ mural.addEventListener('error', e => {
 const btnCarrinho = porId('carrinho-btn');
 const CHAVE_CARRINHO = 'lista-carrinho';
 const CHAVE_NOME = 'lista-nome';   // nome digitado no carrinho, para o agradecimento depois do pagamento
+const CHAVE_RECADO_MURAL = 'lista-recado-mural';   // último recado do carrinho enviado ao mural, para não duplicar
 
 function salvarCarrinho(){
   try { sessionStorage.setItem(CHAVE_CARRINHO, JSON.stringify(carrinho.map(({ it, ...linha }) => linha))); }
@@ -535,7 +536,7 @@ function passoCarrinho(){
     $('#fechar-carrinho').onclick = () => dlg.close();
     return;
   }
-  const dados = st.dados || (st.dados = { nome:'', mostrar:false, recado:'' });
+  const dados = st.dados || (st.dados = { nome:'', mostrar:false, recado:'', publicar:false });
   mostrar(`<h2>Seu carrinho</h2>
     <ul class="carrinho-lista">
       ${carrinho.map(l => `
@@ -550,6 +551,7 @@ function passoCarrinho(){
       <label class="campo">Seu nome (para sabermos a quem agradecer)<input id="nome" autocomplete="name" maxlength="80" value="${esc(dados.nome)}"></label>
       <label class="radio"><input type="checkbox" id="mostrar" ${dados.mostrar ? 'checked' : ''}> Mostrar meu nome na lista de quem participou (aparece quando a vaquinha tiver 3 ou mais participantes; nunca mostramos o valor)</label>
       <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
+      <label class="radio"><input type="checkbox" id="publicar" ${dados.publicar ? 'checked' : ''}> Quero meu recado no mural de recados do site, com meu nome (aparece depois que os noivos lerem e aprovarem)</label>
       <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
     <p class="nota"><strong>Pagar com Pix ou cartão:</strong> você vai para a página segura da InfinitePay, autorizada pelo Banco Central, e paga como em qualquer compra pela internet (ex.: Mercado Livre, Shopee…). O presente é confirmado sozinho na lista. Você não cria conta: ela só pede telefone, e-mail e nome para enviar um código de segurança pelo WhatsApp e evitar fraudes. Este site não recebe esses dados nem os do cartão. <button class="link" type="button" data-ajuda="privacidade">Seus dados (LGPD)</button></p>
@@ -564,28 +566,43 @@ function passoCarrinho(){
       <button class="btn btn-direto" type="button" data-pix-direto>Pix direto de ${fmt(totalCarrinho(carrinho))}</button>
     </div>`);
 
-  const guardarDados = () => { dados.nome = $('#nome').value; dados.mostrar = $('#mostrar').checked; dados.recado = $('#msg').value; };
-  ['#nome', '#mostrar', '#msg'].forEach(s => $(s).addEventListener('input', guardarDados));
+  const guardarDados = () => { dados.nome = $('#nome').value; dados.mostrar = $('#mostrar').checked; dados.recado = $('#msg').value; dados.publicar = $('#publicar').checked; };
+  ['#nome', '#mostrar', '#msg', '#publicar'].forEach(s => $(s).addEventListener('input', guardarDados));
+  // Recado marcado para o mural (com texto). Precisa de nome, porque o mural mostra quem escreveu.
+  const vaiProMural = () => dados.publicar && dados.recado.trim().length >= 2;
+  const ERRO_MURAL_SEM_NOME = 'Escreva seu nome para o recado aparecer no mural.';
   corpo.querySelectorAll('[data-remover]').forEach(b => b.onclick = () => {
     carrinho = retirarDoCarrinho(carrinho, b.dataset.remover);
     atualizarCarrinho();
     passoCarrinho();
   });
   $('#continuar').onclick = () => dlg.close();
-  corpo.querySelectorAll('[data-pix-direto]').forEach(b => b.onclick = () => { guardarDados(); pixDiretoDoCarrinho(dados); });
+  corpo.querySelectorAll('[data-pix-direto]').forEach(b => b.onclick = () => {
+    guardarDados();
+    if (vaiProMural()){
+      if (dados.nome.trim().length < 2) return erroEm(ERRO_MURAL_SEM_NOME, $('#nome'));
+      recadoParaMural(dados.nome.trim(), dados.recado.trim(), $('#isca').value);
+    }
+    pixDiretoDoCarrinho(dados);
+  });
 
   $('#pagar-carrinho').onclick = async () => {
     guardarDados();
     const nome = dados.nome.trim();
     if (dados.mostrar && !nome) return erroEm('Escreva seu nome para ele aparecer na lista.', $('#nome'));
+    if (vaiProMural() && nome.length < 2) return erroEm(ERRO_MURAL_SEM_NOME, $('#nome'));
     if (!CONFIG.apiUrl) return erroEm(MENSAGENS_ERRO.pagamento_nao_configurado);
     const botao = $('#pagar-carrinho');
     botao.disabled = true; botao.textContent = 'Abrindo o pagamento…';
     try {
-      const j = await enviarApi({
-        acao:'criar_pagamento', itens: itensDoPedido(carrinho),
-        nome, mostrar_nome: dados.mostrar, recado: dados.recado.trim(), site: $('#isca').value
-      });
+      // Os dois envios correm juntos; espera o do recado terminar antes de sair do site para a InfinitePay
+      const [j] = await Promise.all([
+        enviarApi({
+          acao:'criar_pagamento', itens: itensDoPedido(carrinho),
+          nome, mostrar_nome: dados.mostrar, recado: dados.recado.trim(), site: $('#isca').value
+        }),
+        vaiProMural() ? recadoParaMural(nome, dados.recado.trim(), $('#isca').value) : null
+      ]);
       if (!j.ok || !j.url) throw new Error(j.erro || 'sem_url');
       try { sessionStorage.setItem(CHAVE_NOME, nome); } catch (e) { /* sem armazenamento: agradece sem o nome */ }
       abrirCheckout(j.url);
@@ -612,6 +629,18 @@ function pixDiretoDoCarrinho(dados){
   porId('pix-livre-valor').value = total.toFixed(2);
   porId('pix-livre-gerar').click();
   mostrarContatos(aviso);
+}
+
+/* Recado do carrinho no mural, só quando a pessoa marca a opção: entra na mesma fila da aba Recados
+   e só aparece depois que os noivos aprovarem. Nunca falha para quem chama: sem rede, o recado ainda
+   chega aos noivos junto com o presente. Não reenvia o mesmo texto se a pessoa tentar pagar de novo. */
+async function recadoParaMural(nome, mensagem, isca){
+  const chave = `${nome}\n${mensagem}`;
+  try { if (sessionStorage.getItem(CHAVE_RECADO_MURAL) === chave) return; } catch (e) {}
+  try {
+    const j = await enviarApi({ acao:'recado', nome, mensagem, site: isca });
+    if (j.ok){ try { sessionStorage.setItem(CHAVE_RECADO_MURAL, chave); } catch (e) {} }
+  } catch (e) { /* sem rede ou API fora do ar: segue sem o mural */ }
 }
 
 /* Vai para a página de pagamento da InfinitePay (só aceita esse endereço) */

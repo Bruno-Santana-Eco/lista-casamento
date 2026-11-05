@@ -10,6 +10,7 @@ O estado de partida é a tag `v1-azulejo`: um único `index.html` funcional, com
 - Nível 2: dados em planilha Google + Apps Script, com atualização automática na tela.
 - Valor individual de cada contribuição nunca aparece no site.
 - Recados públicos só aparecem depois de aprovados na planilha.
+- Recado escrito no carrinho (05/11/2026): continua indo para os noivos junto com o presente e, se a pessoa marcar “Quero meu recado no mural”, também entra na aba Recados para aprovação, como qualquer recado.
 
 ## Decisões pendentes (implementar com o padrão indicado, configurável)
 - **Contagem regressiva**: para a festa (12/12/2026; era 13/12 até 04/11/2026) por padrão; `CONFIG.contagemPara` aceita `"festa"` ou `"casamento"`.
