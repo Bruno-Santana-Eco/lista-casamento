@@ -76,7 +76,8 @@ Teste obrigatório em `tests/pix.test.mjs` (rodar com `node tests/pix.test.mjs`)
 ## Fase 2 — Lista de presentes completa
 
 - Cards com foto (`imagem` de cada item; usar a forma neutra se não houver), nome, descrição e valor, ou barra de progresso nas vaquinhas.
-- Barra da vaquinha com dois trechos: **confirmado** (sólido) e **aguardando confirmação** (mais claro), mais o texto "X pessoas participaram" e, se houver, "entre elas Ana, Carlos…" (só nomes opt-in, até 3, sem valores, e só quando a vaquinha tiver 3 ou mais participantes confirmados, para o total não revelar quanto cada um deu).
+- Barra da vaquinha com dois trechos: **confirmado** (sólido) e **aguardando confirmação** (mais claro), mais o texto "X pessoas participaram" e, se houver, "entre elas Ana, Carlos…" (só nomes opt-in, até 3, sem valores). O nome aparece mesmo quando a pessoa é a única participante: quem marca “Mostrar meu nome” autoriza (decisão de 05/11/2026; entre 04/11 e 05/11 a regra exigia 3 ou mais participantes confirmados).
+- Presentes de valor fixo (05/11/2026): embaixo do preço, “Presenteado por Ana” (ou “Ana e mais 1 pessoa”, se alguém participou sem mostrar o nome), só com os nomes de quem marcou “Mostrar meu nome” e com o pagamento confirmado. Sem nomes, o card fica como antes.
 - Filtros atuais (Todos, Vaquinhas, Presentes, Ainda disponíveis) mais ordenação (A–Z, menor valor, maior valor).
 - **Carrinho**: adicionar vários presentes ou cotas e pagar o total de uma vez.
   - Pix direto: um único QR Code com o total.

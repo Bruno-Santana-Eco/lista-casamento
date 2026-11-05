@@ -26,7 +26,7 @@ Mantenha a planilha **privada** (só a sua conta). Ela guarda nomes e telefones 
   - `cancelado`: ignorada.
 - **Não mude o status de pagamentos da InfinitePay à mão**: o script aprova sozinho depois de conferir. Se um pagamento aprovado ficar `pendente`, veja “Problemas” no [LEIAME.md](LEIAME.md).
 - A vaquinha soma `valor_centavos` (o valor do presente), nunca `paid_amount_centavos`, que na InfinitePay inclui juros do parcelamento.
-- O nome só aparece no site se `mostrar_nome` estiver marcado, o status for `aprovado` ou `confirmado` **e** a vaquinha tiver 3 ou mais participantes confirmados. Com menos, o total confirmado revelaria quanto cada um deu. O valor individual nunca aparece.
+- O nome só aparece no site se `mostrar_nome` estiver marcado **e** o status for `aprovado` ou `confirmado`. O valor individual nunca aparece.
 - A “Contribuição livre” por Pix direto **não** passa pela planilha.
 
 ### Contribuição recebida por fora do site

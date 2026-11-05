@@ -263,14 +263,15 @@ assert.deepEqual(contarEmailFormulario(guardado, '2026-11-05', 60), { guardar: '
 assert.deepEqual(contarEmailFormulario('lixo', '2026-11-04', 60), { guardar: '2026-11-04|1', enviar: 'normal' });     // propriedade estranha
 assert.deepEqual(contarEmailFormulario(null, '2026-11-04', 60), { guardar: '2026-11-04|1', enviar: 'normal' });
 
-// ---------- Nomes nas vaquinhas: só com 3 ou mais participantes confirmados (senão daria para deduzir o valor) ----------
+// ---------- Nomes nas vaquinhas: quem marcou "mostrar meu nome" aparece, mesmo sendo o único (decisão de 05/11/2026) ----------
 const quem = (n, extra) => c({ itens_json: linhas(['geladeira', 1000]), nome: n, mostrar_nome: true, ...extra });
 const nomesDa = (...contr) => agregarPresentes(itens, contr)[0].nomes;           // itens[0] é a geladeira
-assert.deepEqual(nomesDa(quem('Ana')), []);                                      // 1 confirmado: o total seria o valor da Ana
-assert.deepEqual(nomesDa(quem('Ana'), quem('Bia')), []);                         // 2 confirmados
+assert.deepEqual(nomesDa(quem('Ana')), ['Ana']);                                 // 1 confirmado que autorizou
+assert.deepEqual(nomesDa(quem('Ana'), quem('Bia')), ['Ana', 'Bia']);
 assert.deepEqual(nomesDa(quem('Ana'), quem('Bia'), quem('Caio')), ['Ana', 'Bia', 'Caio']);
-assert.deepEqual(nomesDa(quem('Ana'), quem('Bia'), quem('Pend', { status: 'pendente' })), []);   // pendente não conta
-assert.deepEqual(nomesDa(quem('Ana'), quem('Bia'), quem('Anônimo', { mostrar_nome: false })), ['Ana', 'Bia']); // 3 confirmados, 1 sem nome
+assert.deepEqual(nomesDa(quem('Ana'), quem('Pend', { status: 'pendente' })), ['Ana']);                   // pendente não aparece
+assert.deepEqual(nomesDa(quem('Ana'), quem('Anônimo', { mostrar_nome: false })), ['Ana']);              // quem não marcou não aparece
+assert.deepEqual(nomesDa(quem('Anônimo', { mostrar_nome: false })), []);
 assert.equal(agregarPresentes(itens, [quem('Ana')])[0].participantes, 1);       // a contagem continua aparecendo
 
 // ---------- Nomes embutidos do JavaScript (constructor, __proto__…) não derrubam a lista nem passam na validação ----------

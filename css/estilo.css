@@ -241,6 +241,9 @@ h1 .e-comercial{ display:block; font-style:italic; font-weight:400; font-size:cl
 .valores{ margin:0; font-size:.95rem; }
 .aguardando{ color:var(--muted); font-size:.86rem; }
 .participantes{ margin:.2rem 0 0; font-size:.86rem; color:var(--muted); }
+/* “Presenteado por…” fica colado no preço; o espaço até o botão passa para ele */
+.preco:has(+ .presenteado){ margin-bottom:.25rem; }
+.presenteado{ margin:0 0 1rem; }
 .item .preco small{ font-family:var(--sans); font-size:.8rem; font-weight:400; color:var(--muted); }
 .op-tit small{ font-weight:400; color:var(--muted); }
 .cota{ margin:.15rem 0 1rem; color:var(--muted); font-size:.86rem; }

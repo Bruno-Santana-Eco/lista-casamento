@@ -22,7 +22,6 @@ const CFG = {
   RETORNOS_POR_PEDIDO: 3,      // consultas à InfinitePay pelo retorno do site, por pedido, a cada JANELA_RETORNO_SEG
   JANELA_RETORNO_SEG: 600,
   EMAILS_FORMULARIO_POR_DIA: 60,      // avisos de presença e recado; os de pagamento não têm teto
-  MIN_CONFIRMADOS_PARA_NOMES: 3,      // com menos, os nomes revelariam quanto cada um deu
   RECHECAR_APOS_MIN: 5,        // o gatilho só reconfere pendentes com mais de 5 minutos
   PRESENCA_MAX_PESSOAS: 50,    // só um teto técnico contra erro de digitação (ex.: 200 em vez de 2)
   INFINITEPAY: 'https://api.checkout.infinitepay.io',
@@ -96,11 +95,11 @@ function contaComoPendente(c) {
 }
 
 /* Soma o que cada contribuição deu a cada item. Devolve só dados agregados.
-   Os nomes só saem com CFG.MIN_CONFIRMADOS_PARA_NOMES ou mais participantes confirmados: com menos, o total confirmado
-   revelaria quanto cada um deu (ex.: 1 participante, o total é o valor dele). */
+   Os nomes saem só de quem marcou "mostrar meu nome", com o pagamento confirmado, mesmo que seja a única pessoa:
+   quem marca autoriza (decisão do Bruno em 05/11/2026). */
 function agregarPresentes(itens, contribuicoes) {
   const por = {};
-  itens.forEach(it => { por[it.id] = { conf: 0, pend: 0, quem: Object.create(null), confirmados: Object.create(null), nomes: [] }; });
+  itens.forEach(it => { por[it.id] = { conf: 0, pend: 0, quem: Object.create(null), nomes: [] }; });
 
   contribuicoes.forEach(c => {
     const confirmada = STATUS_CONFIRMADOS.indexOf(statusDe(c)) >= 0;
@@ -115,7 +114,6 @@ function agregarPresentes(itens, contribuicoes) {
       if (!a || valor <= 0) return;
       if (confirmada) a.conf += valor; else a.pend += valor;
       a.quem[chave] = true;
-      if (confirmada) a.confirmados[chave] = true;
       const nome = textoSimples(c.nome, 40);
       if (confirmada && verdadeiro(c.mostrar_nome) && nome && a.nomes.indexOf(nome) < 0) a.nomes.push(nome);
     });
@@ -132,7 +130,7 @@ function agregarPresentes(itens, contribuicoes) {
       imagem: it.imagem, quantidade: quantidade,
       arrecadado_confirmado: a.conf, arrecadado_pendente: a.pend,
       participantes: Object.keys(a.quem).length,
-      nomes: Object.keys(a.confirmados).length >= CFG.MIN_CONFIRMADOS_PARA_NOMES ? a.nomes.slice(-3) : [],
+      nomes: a.nomes.slice(-3),
       unidades_dadas: dadas,
       comprado: ehVaquinha ? (it.meta_centavos > 0 && a.conf >= it.meta_centavos) : dadas >= quantidade
     };

@@ -64,7 +64,7 @@ Adicione uma linha na aba `Contribuicoes`, como explicado no [modelo-planilha.md
 
 ## Segurança
 - A planilha **continua privada**: o site só lê dados agregados pela URL pública.
-- A API pública nunca devolve valores por pessoa, telefones nem recados não aprovados. Nas vaquinhas, os nomes só aparecem com 3 ou mais participantes confirmados, para o total não revelar quanto cada um deu.
+- A API pública nunca devolve valores por pessoa, telefones nem recados não aprovados. Nos presentes e nas vaquinhas, aparecem só os nomes de quem marcou “Mostrar meu nome”, com o pagamento confirmado.
 - Nada do que o site envia vira fórmula na planilha: todo texto que começa com `=`, `+`, `-` ou `@` é gravado como texto.
 - O script só acessa esta planilha (`@OnlyCurrentDoc`).
 - Pagamentos e formulários têm limites por minuto separados: spam de recado não bloqueia pagamento.

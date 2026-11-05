@@ -251,8 +251,10 @@ function barraHTML(it){
   const n = it.participantes || 0;
   const nomes = (it.nomes || []).slice(0, 3).map(esc);
   const texto = `${Math.round(conf)}% confirmado` + (pend > 0 ? `, ${Math.round(pend)}% aguardando confirmação` : '');
+  // Com todos os nomes na lista, sem “entre elas”: “1 pessoa participou: Ana”, “2 pessoas participaram: Ana e Bia”
+  const lista = !nomes.length ? '' : (nomes.length >= n ? `: ${listaPt.format(nomes)}` : `, entre elas ${listaPt.format(nomes)}`);
   const quem = n > 0
-    ? `<p class="participantes">${n} ${n === 1 ? 'pessoa participou' : 'pessoas participaram'}${nomes.length ? `, entre elas ${listaPt.format(nomes)}` : ''}</p>`
+    ? `<p class="participantes">${n} ${n === 1 ? 'pessoa participou' : 'pessoas participaram'}${lista}</p>`
     : '';
   return `
     <div class="progresso" role="progressbar" aria-label="Progresso da vaquinha" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(conf)}" aria-valuetext="${texto}">
@@ -274,10 +276,20 @@ function fotoHTML(it){
   return `<img class="item-img" src="${esc(it.imagem)}" width="600" height="600" alt="Foto do presente: ${esc(it.nome)}" loading="lazy">`;
 }
 
+/* Presentes de valor fixo: nomes de quem marcou “Mostrar meu nome”, com o pagamento confirmado (vêm da API).
+   Se alguém participou sem mostrar o nome: “Presenteado por Ana e mais 1 pessoa”. Sem nomes, não mostra nada. */
+function presenteadoPorHTML(it){
+  const nomes = (it.nomes || []).slice(0, 3).map(esc);
+  if (!nomes.length) return '';
+  const outros = Math.max(0, (it.participantes || 0) - nomes.length);
+  const lista = outros ? [...nomes, `mais ${outros} ${outros === 1 ? 'pessoa' : 'pessoas'}`] : nomes;
+  return `<p class="participantes presenteado">Presenteado por ${listaPt.format(lista)}</p>`;
+}
+
 function cardHTML(it){
   const dado = jaDado(it);
   const preco = isVaq(it) ? barraHTML(it)
-    : `<p class="preco">${fmt(it.valor)}${unidadesTotal(it) > 1 ? ' <small>cada</small>' : ''}</p>`;
+    : `<p class="preco">${fmt(it.valor)}${unidadesTotal(it) > 1 ? ' <small>cada</small>' : ''}</p>${presenteadoPorHTML(it)}`;
   return `
     <article class="item${dado ? ' dado' : ''}">
       <div class="item-foto">${fotoHTML(it)}${seloHTML(it)}</div>
@@ -549,7 +561,7 @@ function passoCarrinho(){
     <p class="carrinho-total"><span>Total</span> <strong>${fmt(totalCarrinho(carrinho))}</strong></p>
     <div class="carrinho-dados">
       <label class="campo">Seu nome (para sabermos a quem agradecer)<input id="nome" autocomplete="name" maxlength="80" value="${esc(dados.nome)}"></label>
-      <label class="radio"><input type="checkbox" id="mostrar" ${dados.mostrar ? 'checked' : ''}> Mostrar meu nome na lista de quem participou (aparece quando a vaquinha tiver 3 ou mais participantes; nunca mostramos o valor)</label>
+      <label class="radio"><input type="checkbox" id="mostrar" ${dados.mostrar ? 'checked' : ''}> Mostrar meu nome na lista de quem participou (nunca mostramos o valor)</label>
       <label class="campo">Recado para os noivos (opcional)<textarea id="msg" rows="3" maxlength="500">${esc(dados.recado)}</textarea></label>
       <label class="radio"><input type="checkbox" id="publicar" ${dados.publicar ? 'checked' : ''}> Quero meu recado no mural de recados do site, com meu nome (aparece depois que os noivos lerem e aprovarem)</label>
       <input class="isca" id="isca" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
