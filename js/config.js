@@ -69,13 +69,17 @@ const CONFIG = {
 
     { id:"panelas", tipo:"presente", nome:"Jogo de panelas", descricao:"Jogo de inox para as primeiras receitas da casa.", valor:339.70, comprado:false, imagem:"img/presentes/panelas.jpg" },
     { id:"pratos", tipo:"presente", nome:"Jogo de pratos", descricao:"Para receber família e amigos à mesa.", valor:315.78, comprado:false, imagem:"img/presentes/pratos.jpg" },
-    { id:"vinho", tipo:"presente", nome:"Cesta de vinho", descricao:"Para brindar nas ocasiões especiais.", valor:319.00, quantidade:3, dadas:0, comprado:false, imagem:"img/presentes/vinho.jpg" },
+    { id:"vinho", tipo:"presente", nome:"Cesta de vinho", descricao:"Para brindar nas ocasiões especiais.", valor:319.00, comprado:false, imagem:"img/presentes/vinho.jpg" },
     { id:"jogo-cama", tipo:"presente", nome:"Jogo de cama completo", descricao:"Jogo completo de cama queen. Temos três unidades na lista.", valor:324.10, quantidade:3, dadas:0, comprado:false, imagem:"img/presentes/jogo-cama.jpg" },
     { id:"airfryer", tipo:"presente", nome:"Air fryer", descricao:"Porque ninguém quer fritar nada depois do expediente.", valor:269.90, comprado:false, imagem:"img/presentes/airfryer.jpg" },
     { id:"talheres", tipo:"presente", nome:"Jogo de talheres", descricao:"Um jogo completo para as refeições de todo dia.", valor:185.90, comprado:false, imagem:"img/presentes/talheres.jpg" },
     { id:"facas", tipo:"presente", nome:"Jogo de facas", descricao:"Para cortar tudo com segurança na cozinha nova.", valor:153.90, comprado:false, imagem:"img/presentes/facas.jpg" },
+    { id:"vinho-amadeo", tipo:"presente", nome:"Vinho Amadeo", descricao:"Cabernet Sauvignon de Mendoza para as noites especiais.", valor:109.71, comprado:false, imagem:"img/presentes/vinho-amadeo.jpg" },
     { id:"liquidificador", tipo:"presente", nome:"Liquidificador", descricao:"Para os sucos e as vitaminas de manhã.", valor:98.99, comprado:false, imagem:"img/presentes/liquidificador.jpg" },
+    { id:"vinho-catena", tipo:"presente", nome:"Vinho D.V. Catena", descricao:"Cabernet-Malbec argentino para brindar a casa nova.", valor:96.70, comprado:false, imagem:"img/presentes/vinho-catena.jpg" },
+    { id:"vinho-argenta", tipo:"presente", nome:"Vinho Luiz Argenta", descricao:"Cabernet Sauvignon brasileiro para um jantar a dois.", valor:89.90, comprado:false, imagem:"img/presentes/vinho-argenta.jpg" },
     { id:"ferro", tipo:"presente", nome:"Ferro de passar", descricao:"Para as camisas do dia a dia.", valor:88.90, comprado:false, imagem:"img/presentes/ferro.jpg" },
+    { id:"chaleira", tipo:"presente", nome:"Chaleira elétrica", descricao:"Água quente em minutos para o café e o chá.", valor:77.00, comprado:false, imagem:"img/presentes/chaleira.jpg" },
     { id:"sanduicheira", tipo:"presente", nome:"Sanduicheira", descricao:"Lanches rápidos para as noites de pouco tempo.", valor:69.24, comprado:false, imagem:"img/presentes/sanduicheira.jpg" }
   ]
 };
