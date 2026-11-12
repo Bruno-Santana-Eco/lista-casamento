@@ -73,6 +73,7 @@ const CONFIG = {
     { id:"jogo-cama", tipo:"presente", nome:"Jogo de cama completo", descricao:"Jogo completo de cama queen. Temos três unidades na lista.", valor:324.10, quantidade:3, dadas:0, comprado:false, imagem:"img/presentes/jogo-cama.jpg" },
     { id:"airfryer", tipo:"presente", nome:"Air fryer", descricao:"Porque ninguém quer fritar nada depois do expediente.", valor:269.90, comprado:false, imagem:"img/presentes/airfryer.jpg" },
     { id:"talheres", tipo:"presente", nome:"Jogo de talheres", descricao:"Um jogo completo para as refeições de todo dia.", valor:185.90, comprado:false, imagem:"img/presentes/talheres.jpg" },
+    { id:"panela-pressao", tipo:"presente", nome:"Panela de pressão", descricao:"Para o feijão de todo dia ficar pronto rapidinho.", valor:149.90, comprado:false, imagem:"img/presentes/panela-pressao.jpg" },
     { id:"facas", tipo:"presente", nome:"Jogo de facas", descricao:"Para cortar tudo com segurança na cozinha nova.", valor:153.90, comprado:false, imagem:"img/presentes/facas.jpg" },
     { id:"vinho-amadeo", tipo:"presente", nome:"Vinho Amadeo", descricao:"Cabernet Sauvignon de Mendoza para as noites especiais.", valor:109.71, comprado:false, imagem:"img/presentes/vinho-amadeo.jpg" },
     { id:"liquidificador", tipo:"presente", nome:"Liquidificador", descricao:"Para os sucos e as vitaminas de manhã.", valor:98.99, comprado:false, imagem:"img/presentes/liquidificador.jpg" },
@@ -80,7 +81,10 @@ const CONFIG = {
     { id:"vinho-argenta", tipo:"presente", nome:"Vinho Luiz Argenta", descricao:"Cabernet Sauvignon brasileiro para um jantar a dois.", valor:89.90, comprado:false, imagem:"img/presentes/vinho-argenta.jpg" },
     { id:"ferro", tipo:"presente", nome:"Ferro de passar", descricao:"Para as camisas do dia a dia.", valor:88.90, comprado:false, imagem:"img/presentes/ferro.jpg" },
     { id:"chaleira", tipo:"presente", nome:"Chaleira elétrica", descricao:"Água quente em minutos para o café e o chá.", valor:77.00, comprado:false, imagem:"img/presentes/chaleira.jpg" },
-    { id:"sanduicheira", tipo:"presente", nome:"Sanduicheira", descricao:"Lanches rápidos para as noites de pouco tempo.", valor:69.24, comprado:false, imagem:"img/presentes/sanduicheira.jpg" }
+    { id:"frigideiras", tipo:"presente", nome:"Jogo de frigideiras", descricao:"Três tamanhos, do ovo do café da manhã ao bife do almoço.", valor:82.92, comprado:false, imagem:"img/presentes/frigideiras.jpg" },
+    { id:"travessas", tipo:"presente", nome:"Jogo de travessas de vidro", descricao:"Para a lasanha de domingo e as sobremesas de família.", valor:70.32, comprado:false, imagem:"img/presentes/travessas.jpg" },
+    { id:"sanduicheira", tipo:"presente", nome:"Sanduicheira", descricao:"Lanches rápidos para as noites de pouco tempo.", valor:69.24, comprado:false, imagem:"img/presentes/sanduicheira.jpg" },
+    { id:"kit-banheiro", tipo:"presente", nome:"Kit de acessórios para banheiro", descricao:"Ducha higiênica, toalheiros, gancho e porta-papel para o banheiro novo.", valor:68.64, comprado:false, imagem:"img/presentes/kit-banheiro.jpg" }
   ]
 };
 /* ===================================================================== */
