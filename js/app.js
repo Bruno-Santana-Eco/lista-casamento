@@ -157,9 +157,10 @@ function celularValido(v){
   if ((d.length === 12 || d.length === 13) && d.startsWith('55')) d = d.slice(2);
   return d.length === 10 || d.length === 11 ? d : '';
 }
+// Espaço fixo ( ) entre o número e a palavra: “2” e “adultos” nunca ficam em linhas separadas
 const pessoasTexto = (a, c) => listaPt.format([
-  `${a} ${a === 1 ? 'adulto' : 'adultos'}`,
-  ...(c ? [`${c} ${c === 1 ? 'criança' : 'crianças'}`] : [])
+  `${a} ${a === 1 ? 'adulto' : 'adultos'}`,
+  ...(c ? [`${c} ${c === 1 ? 'criança' : 'crianças'}`] : [])
 ]);
 
 /* Confirmação de presença: sem lista prévia; cada envio com o mesmo celular substitui o anterior */
@@ -196,11 +197,12 @@ formPresenca.addEventListener('submit', async e => {
   if (vem && (!Number.isInteger(adultos) || adultos < 1)) return erro('Informe pelo menos 1 adulto (contando você).', f.adultos);
   if (vem && (!Number.isInteger(criancas) || criancas < 0)) return erro('Confira o número de crianças.', f.criancas);
 
-  await enviarForm(formPresenca, 'aviso-presenca',
+  const ok = await enviarForm(formPresenca, 'aviso-presenca',
     { acao:'presenca', nome, telefone: f.telefone.value, comparece: vem ? 'sim' : 'nao', adultos, criancas, mensagem: f.mensagem.value.trim() },
     vem
       ? `Presença confirmada: ${pessoasTexto(adultos, criancas)}. Obrigado! Se precisar mudar, é só enviar de novo com o mesmo celular.`
       : 'Resposta registrada. Que pena que você não poderá ir! Se mudar de ideia, é só enviar de novo com o mesmo celular.');
+  if (ok) passoPresencaRegistrada({ nome, vem, adultos, criancas });
 });
 
 /* Recados: entram na planilha e só aparecem no mural depois de aprovados */
@@ -691,6 +693,55 @@ function voltarPara(idSecao, campo){
   if (campo) campo.focus({ preventScroll: true });
 }
 
+/* Foto do casal com ramos, no topo das janelas de agradecimento (pagamento e presença) */
+const FOTO_CASAL_HTML = `
+      <div class="agradecimento-foto" aria-hidden="true">
+        <img src="img/casal-hero.jpg" width="1000" height="1000" alt="">
+        <svg class="ilu agradecimento-ramo ramo-a" viewBox="0 -20 160 320"><use href="#ilu-ramo"/></svg>
+        <svg class="ilu agradecimento-ramo ramo-b" viewBox="0 -20 160 320"><use href="#ilu-ramo"/></svg>
+      </div>`;
+
+/* Depois de confirmar a presença: comemora e lembra, sem pressão, dos recados e da lista de presentes.
+   O aviso embaixo do formulário continua lá para quem fechar a janela. */
+function passoPresencaRegistrada({ nome, vem, adultos, criancas }){
+  const primeiroNome = nome.split(' ')[0];
+  const casal = `${CONFIG.casal.nome1} & ${CONFIG.casal.nome2}`;
+  const minusculo = s => String(s || '').charAt(0).toLowerCase() + String(s || '').slice(1);
+  const quem = adultos + criancas > 1 ? `Já estamos contando com vocês: ${pessoasTexto(adultos, criancas)}.` : 'Já estamos contando com você.';
+  const quando = CONFIG.festa.data ? ` A gente se vê ${minusculo(CONFIG.festa.data)}${CONFIG.festa.horario ? `, ${minusculo(CONFIG.festa.horario)}` : ''}.` : '';
+  const piscina = /piscina/i.test(CONFIG.festa.traje || '') ? ' E não esqueça a roupa de banho: a piscina estará esperando!' : '';
+  // Ao fechar (Fechar, X ou Esc), a janela devolve o foco a quem estava focado antes de abrir: o botão do formulário,
+  // e não o topo da página (o botão perde o foco enquanto fica travado em “Enviando…”)
+  formPresenca.querySelector('button[type=submit]').focus({ preventScroll: true });
+  if (!dlg.open) dlg.showModal();   // abre antes de preencher, para o foco ir para o título
+  mostrar(`
+    <div class="agradecimento">
+      ${FOTO_CASAL_HTML}
+      <h2>${vem ? `Oba, ${esc(primeiroNome)}!` : `Que pena, ${esc(primeiroNome)}!`}</h2>
+      <p class="agradecimento-selo">${vem ? 'Presença confirmada' : 'Resposta registrada'}</p>
+      <p class="agradecimento-texto">${vem ? esc(quem + quando + piscina) : 'Vamos sentir sua falta na celebração, mas obrigado por avisar.'}</p>
+      <p class="agradecimento-assinatura">Com carinho,<br>${esc(casal)}</p>
+      <div class="agradecimento-proximos">
+        <p>${vem
+          ? 'Enquanto a festa não chega, que tal deixar um recado para o nosso mural? E, se der vontade de mimar a casa nova, a lista de presentes está logo ali.'
+          : 'Se quiser, deixe um recado para o nosso mural: vamos adorar ler. E, se quiser participar mesmo de longe, a lista de presentes está logo ali.'}</p>
+        ${vem ? '<p class="nota">Sem pressão: a sua presença já é o melhor presente.</p>' : ''}
+        <div class="acoes">
+          <button class="btn" type="button" id="ir-recados">Deixar um recado</button>
+          <button class="btn sec" type="button" id="ir-presentes">Ver a lista de presentes</button>
+        </div>
+        <p><button class="link" type="button" id="fim">Fechar</button></p>
+      </div>
+    </div>`);
+  $('#fim').onclick = () => dlg.close();
+  $('#ir-presentes').onclick = () => voltarPara('presentes');
+  $('#ir-recados').onclick = () => {
+    const campoNome = porId('form-recado').elements.nome;
+    if (!campoNome.value.trim()) campoNome.value = nome;   // já chega com o nome preenchido
+    voltarPara('recados', porId('form-recado').elements.mensagem);
+  };
+}
+
 function passoObrigado(status, recibo){
   const aprovado = status === 'aprovado';
   let nome = '';
@@ -711,12 +762,7 @@ function passoObrigado(status, recibo){
         </div>
         <p><button class="link" type="button" id="fim">Voltar para a lista de presentes</button></p>
       </div>`;
-  const foto = `
-      <div class="agradecimento-foto" aria-hidden="true">
-        <img src="img/casal-hero.jpg" width="1000" height="1000" alt="">
-        <svg class="ilu agradecimento-ramo ramo-a" viewBox="0 -20 160 320"><use href="#ilu-ramo"/></svg>
-        <svg class="ilu agradecimento-ramo ramo-b" viewBox="0 -20 160 320"><use href="#ilu-ramo"/></svg>
-      </div>`;
+  const foto = FOTO_CASAL_HTML;
   mostrar(aprovado ? `
     <div class="agradecimento">
       ${foto}
