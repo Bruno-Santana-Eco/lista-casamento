@@ -498,6 +498,10 @@ dialog .agradecimento h2{ font-size:clamp(2rem, 7vw, 2.5rem); padding-right:0; m
 .agradecimento-texto{ font-size:1.08rem; text-wrap:pretty; }
 .agradecimento-assinatura{ font-family:var(--serif); font-style:italic; font-size:1.4rem; line-height:1.3; color:var(--destaque-escuro); margin:1rem 0 !important; }
 .agradecimento-email{ background:var(--destaque-suave); border-radius:12px; padding:.75rem 1rem; font-size:.95rem; }
+/* Endereço na janela depois de confirmar a presença; links com área de toque maior no celular */
+.agradecimento-local{ background:var(--destaque-suave); border-radius:12px; padding:.6rem 1rem; font-size:.95rem; margin-top:1rem; }
+.agradecimento-local p{ margin:.2rem 0; }
+.agradecimento-local .link{ display:inline-block; padding:.3rem .2rem; }
 .agradecimento-proximos{ margin-top:1.25rem; padding-top:1rem; border-top:1px dashed var(--line); }
 .agradecimento-proximos p{ margin:.3rem 0; }
 .agradecimento-proximos .acoes{ margin-top:.9rem; }

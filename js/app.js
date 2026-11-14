@@ -58,14 +58,16 @@ document.querySelectorAll('img.foto-blob, img.foto-redonda').forEach(img => {
 
 /* ---------- Recepção (só aparece com endereço) ---------- */
 const rec = CONFIG.recepcao;
+// Links de rota, usados na seção Local e na janela depois de confirmar a presença
+const linkMaps = endereco => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+const linkWaze = endereco => `https://waze.com/ul?q=${encodeURIComponent(endereco)}&navigate=yes`;
 if (rec && rec.endereco){
-  const q = encodeURIComponent(rec.endereco);
   porId('rec-data').textContent = rec.data || '';
   porId('rec-horario').textContent = rec.horario || '';
   porId('rec-local').textContent = rec.local || '';
   porId('rec-endereco').textContent = rec.endereco;
-  porId('rec-maps').href = `https://www.google.com/maps/search/?api=1&query=${q}`;
-  porId('rec-waze').href = `https://waze.com/ul?q=${q}&navigate=yes`;
+  porId('rec-maps').href = linkMaps(rec.endereco);
+  porId('rec-waze').href = linkWaze(rec.endereco);
   porId('recepcao').hidden = false;
   porId('menu-recepcao').hidden = false;
 }
@@ -710,6 +712,12 @@ function passoPresencaRegistrada({ nome, vem, adultos, criancas }){
   const quem = adultos + criancas > 1 ? `Já estamos contando com vocês: ${pessoasTexto(adultos, criancas)}.` : 'Já estamos contando com você.';
   const quando = CONFIG.festa.data ? ` A gente se vê ${minusculo(CONFIG.festa.data)}${CONFIG.festa.horario ? `, ${minusculo(CONFIG.festa.horario)}` : ''}.` : '';
   const piscina = /piscina/i.test(CONFIG.festa.traje || '') ? ' E não esqueça a roupa de banho: a piscina estará esperando!' : '';
+  // Quem vem já leva o endereço e a rota, sem precisar procurar a seção Local
+  const local = vem && rec && rec.endereco ? `
+      <div class="agradecimento-local">
+        <p><strong>Onde:</strong> ${rec.local ? `${esc(rec.local)}, ` : ''}${esc(rec.endereco)}</p>
+        <p><a class="link" href="${esc(linkMaps(rec.endereco))}" target="_blank" rel="noopener noreferrer">Abrir no Maps</a> · <a class="link" href="${esc(linkWaze(rec.endereco))}" target="_blank" rel="noopener noreferrer">Abrir no Waze</a></p>
+      </div>` : '';
   // Ao fechar (Fechar, X ou Esc), a janela devolve o foco a quem estava focado antes de abrir: o botão do formulário,
   // e não o topo da página (o botão perde o foco enquanto fica travado em “Enviando…”)
   formPresenca.querySelector('button[type=submit]').focus({ preventScroll: true });
@@ -720,6 +728,7 @@ function passoPresencaRegistrada({ nome, vem, adultos, criancas }){
       <h2>${vem ? `Oba, ${esc(primeiroNome)}!` : `Que pena, ${esc(primeiroNome)}!`}</h2>
       <p class="agradecimento-selo">${vem ? 'Presença confirmada' : 'Resposta registrada'}</p>
       <p class="agradecimento-texto">${vem ? esc(quem + quando + piscina) : 'Vamos sentir sua falta na celebração, mas obrigado por avisar.'}</p>
+      ${local}
       <p class="agradecimento-assinatura">Com carinho,<br>${esc(casal)}</p>
       <div class="agradecimento-proximos">
         <p>${vem
