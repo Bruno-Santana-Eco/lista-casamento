@@ -13,7 +13,7 @@ O estado de partida é a tag `v1-azulejo`: um único `index.html` funcional, com
 - Recado escrito no carrinho (05/11/2026): continua indo para os noivos junto com o presente e, se a pessoa marcar “Quero meu recado no mural”, também entra na aba Recados para aprovação, como qualquer recado.
 
 ## Decisões pendentes (implementar com o padrão indicado, configurável)
-- **Contagem regressiva**: para a festa (12/12/2026; era 13/12 até 04/11/2026) por padrão; `CONFIG.contagemPara` aceita `"festa"` ou `"casamento"`.
+- **Contagem regressiva**: para a festa (13/12/2026; foi 12/12 entre 04/11 e 13/11/2026) por padrão; `CONFIG.contagemPara` aceita `"festa"` ou `"casamento"`.
 - **Confirmação de presença**: formulário aberto com limite de acompanhantes por padrão; preparar o modo "lista de convidados" para fase futura, sem implementar agora.
 - **Recepção**: definida em 03/11/2026 (Alameda Praia do Flamengo, 2389, Stella Maris, das 10h às 16h). O horário aparece na caixa do convite, no topo, e a contagem regressiva termina às 10h. A seção “Local da celebração” fica no fim da página, depois dos recados, para o convidado passar por tudo antes; só aparece quando `CONFIG.recepcao.endereco` estiver preenchido.
 - **Ordem da página** (03/11/2026): O Casal, Confirme presença, Lista de presentes, Contribuição livre, Recados, Local. Os recados ficam depois dos presentes porque o mural pode crescer muito.

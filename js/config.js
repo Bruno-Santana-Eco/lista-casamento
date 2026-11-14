@@ -9,13 +9,13 @@ const CONFIG = {
   },
 
   // Datas no formato AAAA-MM-DD
-  datas: { casamento: "2026-11-26", festa: "2026-12-12" },
+  datas: { casamento: "2026-11-26", festa: "2026-12-13" },
   // Hora em que a festa começa (HH:MM): a contagem regressiva termina nela
   horaFesta: "10:00",
   // Caixa de destaque no topo: o convite é para a celebração (deixe festa: null para esconder)
   festa: {
     titulo: "Celebração entre família e amigos",
-    data: "Sábado, 12 de dezembro de 2026",
+    data: "Domingo, 13 de dezembro de 2026",
     horario: "Das 10h às 16h",
     traje: "casual, leve e fresco. A piscina estará esperando (roupa de banho é bem-vinda)"
   },
@@ -28,7 +28,7 @@ const CONFIG = {
 
   // Local da celebração, no fim da página. A seção só aparece quando o endereço estiver preenchido
   recepcao: {
-    data: "Sábado, 12 de dezembro de 2026",
+    data: "Domingo, 13 de dezembro de 2026",
     horario: "Das 10h às 16h",
     local: "",
     endereco: "Alameda Praia do Flamengo, 2389, Stella Maris, Salvador - BA"
@@ -67,6 +67,7 @@ const CONFIG = {
     { id:"sofa", tipo:"vaquinha", nome:"Sofá", descricao:"Para o descanso depois do trabalho e para receber as visitas.", meta:1500, cota:100, arrecadado:0, imagem:"img/presentes/sofa.jpg" },
     { id:"fogao", tipo:"vaquinha", nome:"Fogão", descricao:"Para o primeiro almoço de domingo sair da nossa própria cozinha.", meta:800, cota:50, arrecadado:0, imagem:"img/presentes/fogao.jpg" },
 
+    { id:"micro-ondas", tipo:"presente", nome:"Micro-ondas", descricao:"Para esquentar a marmita e fazer a pipoca do filme.", valor:389.98, comprado:false, imagem:"img/presentes/micro-ondas.jpg" },
     { id:"panelas", tipo:"presente", nome:"Jogo de panelas", descricao:"Jogo de inox para as primeiras receitas da casa.", valor:339.70, comprado:false, imagem:"img/presentes/panelas.jpg" },
     { id:"pratos", tipo:"presente", nome:"Jogo de pratos", descricao:"Para receber família e amigos à mesa.", valor:315.78, comprado:false, imagem:"img/presentes/pratos.jpg" },
     { id:"vinho", tipo:"presente", nome:"Cesta de vinho", descricao:"Para brindar nas ocasiões especiais.", valor:319.00, comprado:false, imagem:"img/presentes/vinho.jpg" },
@@ -75,16 +76,19 @@ const CONFIG = {
     { id:"talheres", tipo:"presente", nome:"Jogo de talheres", descricao:"Um jogo completo para as refeições de todo dia.", valor:185.90, comprado:false, imagem:"img/presentes/talheres.jpg" },
     { id:"panela-pressao", tipo:"presente", nome:"Panela de pressão", descricao:"Para o feijão de todo dia ficar pronto rapidinho.", valor:149.90, comprado:false, imagem:"img/presentes/panela-pressao.jpg" },
     { id:"facas", tipo:"presente", nome:"Jogo de facas", descricao:"Para cortar tudo com segurança na cozinha nova.", valor:153.90, comprado:false, imagem:"img/presentes/facas.jpg" },
-    { id:"vinho-amadeo", tipo:"presente", nome:"Vinho Amadeo", descricao:"Cabernet Sauvignon de Mendoza para as noites especiais.", valor:109.71, comprado:false, imagem:"img/presentes/vinho-amadeo.jpg" },
     { id:"liquidificador", tipo:"presente", nome:"Liquidificador", descricao:"Para os sucos e as vitaminas de manhã.", valor:98.99, comprado:false, imagem:"img/presentes/liquidificador.jpg" },
     { id:"vinho-catena", tipo:"presente", nome:"Vinho D.V. Catena", descricao:"Cabernet-Malbec argentino para brindar a casa nova.", valor:96.70, comprado:false, imagem:"img/presentes/vinho-catena.jpg" },
     { id:"vinho-argenta", tipo:"presente", nome:"Vinho Luiz Argenta", descricao:"Cabernet Sauvignon brasileiro para um jantar a dois.", valor:89.90, comprado:false, imagem:"img/presentes/vinho-argenta.jpg" },
+    { id:"potes", tipo:"presente", nome:"Kit de potes para mantimentos", descricao:"Para a despensa ficar organizada, com tudo à vista.", valor:95.00, comprado:false, imagem:"img/presentes/potes.jpg" },
     { id:"ferro", tipo:"presente", nome:"Ferro de passar", descricao:"Para as camisas do dia a dia.", valor:88.90, comprado:false, imagem:"img/presentes/ferro.jpg" },
     { id:"chaleira", tipo:"presente", nome:"Chaleira elétrica", descricao:"Água quente em minutos para o café e o chá.", valor:77.00, comprado:false, imagem:"img/presentes/chaleira.jpg" },
     { id:"frigideiras", tipo:"presente", nome:"Jogo de frigideiras", descricao:"Três tamanhos, do ovo do café da manhã ao bife do almoço.", valor:82.92, comprado:false, imagem:"img/presentes/frigideiras.jpg" },
     { id:"travessas", tipo:"presente", nome:"Jogo de travessas de vidro", descricao:"Para a lasanha de domingo e as sobremesas de família.", valor:70.32, comprado:false, imagem:"img/presentes/travessas.jpg" },
+    { id:"kit-cozinha", tipo:"presente", nome:"Kit de utensílios de cozinha", descricao:"Concha, escumadeira, pegador e companhia para a cozinha nova.", valor:73.99, comprado:false, imagem:"img/presentes/kit-cozinha.jpg" },
     { id:"sanduicheira", tipo:"presente", nome:"Sanduicheira", descricao:"Lanches rápidos para as noites de pouco tempo.", valor:69.24, comprado:false, imagem:"img/presentes/sanduicheira.jpg" },
-    { id:"kit-banheiro", tipo:"presente", nome:"Kit de acessórios para banheiro", descricao:"Ducha higiênica, toalheiros, gancho e porta-papel para o banheiro novo.", valor:68.64, comprado:false, imagem:"img/presentes/kit-banheiro.jpg" }
+    { id:"kit-banheiro", tipo:"presente", nome:"Kit de acessórios para banheiro", descricao:"Ducha higiênica, toalheiros, gancho e porta-papel para o banheiro novo.", valor:68.64, comprado:false, imagem:"img/presentes/kit-banheiro.jpg" },
+    { id:"lixeira", tipo:"presente", nome:"Lixeira com pedal", descricao:"Para a cozinha nova ficar sempre em ordem.", valor:49.97, comprado:false, imagem:"img/presentes/lixeira.jpg" },
+    { id:"kit-sobremesa", tipo:"presente", nome:"Jogo de taças de sobremesa", descricao:"Seis taças para o pudim e o sorvete das visitas.", valor:45.90, comprado:false, imagem:"img/presentes/kit-sobremesa.jpg" }
   ]
 };
 /* ===================================================================== */
